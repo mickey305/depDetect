@@ -1,6 +1,5 @@
 package com.cm55.depDetect;
-import/**/java.io.*; /*
-*/import java.util.*;
+
 // /* ブロックコメントではない
 public class CommentRemoverCommentTest {
   /** フィールド **/

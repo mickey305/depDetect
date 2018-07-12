@@ -1,8 +1,9 @@
 package com.cm55.depDetect;
 
-import org.junit.*;
-import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+
+import org.junit.*;
 
 
 public class PkgNodeTest {
@@ -15,7 +16,7 @@ public class PkgNodeTest {
     PkgNode depDetect = cm55.ensurePackage("depDetect");
         
     assertThat(root.findNode("com.cm55.depDetect"), equalTo(depDetect));   
-    assertThat(root.findNode("com.cm55.test"), equalTo(null)); 
+    assertThat(root.findNode("com.cm55.test"), equalTo(cm55)); 
   }
 
 }

@@ -2,26 +2,31 @@ package com.cm55.depDetect;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.*;
 import java.util.stream.*;
 
-public class ReadAll {
+public class ModelCreator {
 
-  public static PkgNode readAll(Path...tops) throws IOException {
+  public static Model create(Path...tops) throws IOException {
     PkgNode root = PkgNode.createRoot();
-    for (Path top: tops) readAll(root, top);
-    Set<String>noNodeSet = new HashSet<>();
-    root.visit(node-> {
-      if (!(node instanceof ClsNode)) return;
-      noNodeSet.addAll(
-        ((ClsNode)node).imports.setNode(root)
-      );
+    
+    // ツリーを作成する
+    for (Path top: tops) create(root, top);
+
+    // 依存をビルドする
+    root.buildDeps();
+    
+    // 循環依存をビルドする
+    root.buildCyclics();
+        
+    root.visitPackages(pkg-> {
+      if (pkg.getCyclics().count() == 0) return;
+      System.out.println("-------" + pkg + "\n" + pkg.getCyclics());
     });
-    noNodeSet.stream().sorted().forEach(System.out::println);
-    return root;
+    
+    return new Model(root, null);
   }
   
-  static void readAll(PkgNode root, Path top) throws IOException {
+  static void create(PkgNode root, Path top) throws IOException {
     new Object() {
       void processChild(PkgNode pkg, Path path) throws IOException {
         for (Path child: Files.list(path).collect(Collectors.toList())) {   
@@ -42,12 +47,11 @@ public class ReadAll {
   
   
   public static void main(String[]args) throws IOException {
-    PkgNode root = readAll( 
+    Model model = create( 
       Paths.get("C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\src_base"),
       Paths.get("C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\src_common"),
       Paths.get("C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\src_server"),
       Paths.get("C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\src_term")
     );
-
   }
 }

@@ -5,7 +5,7 @@ package com.cm55.depDetect;
  * 下位の{@link PkgNode}がパッケージを表し、{@link ClsNode}がクラスを表す。
  * @author ysugimura
  */
-public class Node implements Comparable<Node> {
+public abstract class Node implements Comparable<Node> {
 
   /** 上位パッケージ */
   public final PkgNode parent;
@@ -41,12 +41,23 @@ public class Node implements Comparable<Node> {
   }
   
   /** ノードビジター */
-  public interface Visitor {
-    public void visited(Node node);
+  public interface Visitor<T extends Node> {
+    public void visited(T node);
   }
-
+  
+  /** ルートノードを取得する */
+  public PkgNode getRoot() {
+    if (parent == null) return (PkgNode)this;
+    return parent.getRoot();
+  }
+  
   /** このノード以下のノードをすべて訪問する */
-  public void visit(Visitor visitor) {
-    visitor.visited(this);    
-  }
+  public abstract void visit(Visitor<Node> visitor);
+  
+  public abstract void visitClasses(Visitor<ClsNode>visitor);
+  
+  public abstract void visitPackages(Visitor<PkgNode>visitor);
+  
+
+
 }

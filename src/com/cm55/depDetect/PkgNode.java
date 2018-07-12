@@ -11,6 +11,10 @@ public class PkgNode extends Node {
 
   private Map<String, Node>nodeMap = new HashMap<>();
   
+  private Deps deps;
+  
+  private Cyclics cyclics;
+  
   /** ルートパッケージノードを作成する */
   public static PkgNode createRoot() {
     return new PkgNode();
@@ -62,18 +66,31 @@ public class PkgNode extends Node {
   }
 
   /** このパッケージの下のすべてのノードを返す。パッケージノード、クラスノードが混在する */
-  public Stream<Node>nodes() {
+  public Stream<Node>nodeStream() {
     return nodeMap.values().stream().sorted();
   }
+  
+  /** このパッケージの下のすべてのクラスノードのストリームを返す */
+  public Stream<ClsNode>classStream() {
+    return nodeMap.values().stream()
+        .filter(node->node instanceof ClsNode).map(node->(ClsNode)node);
+  }
+  
+  /** このパッケージの下のすべてのパッケージノードのストリームを返す */
+  public Stream<PkgNode>packageStream() {
+    return nodeMap.values().stream()
+        .filter(node->node instanceof PkgNode).map(node->(PkgNode)node);
+  }
+  
 
-  /** このパッケージノード以下のすべてをツリー構造として印刷する */
-  public String printTree() {
+  /** このパッケージノード以下のすべてをツリー構造として文字列化する。デバッグ用 */
+  public String treeString() {
     StringBuilder s = new StringBuilder();
     new Object() {
       void printChild(Node node, String indent) {
         s.append(indent + node.name + "\n");
         if (node instanceof PkgNode) {
-          ((PkgNode)node).nodes().forEach(child-> {
+          ((PkgNode)node).nodeStream().forEach(child-> {
             printChild(child, indent + " ");
           });
         }
@@ -98,10 +115,59 @@ public class PkgNode extends Node {
     return ((PkgNode)node).findNode(path.substring(dot + 1));
   }
 
+  /** このパッケージノードの依存セットを作成する */
+  public void buildDeps() {
+    Set<PkgNode>set = new HashSet<>();
+    classStream().forEach(clsNode-> {
+      Deps d = clsNode.buildDeps();
+      set.addAll(d.set);
+    });
+    deps = new Deps(set);
+    this.packageStream().forEach(child->child.buildDeps());
+  }
+  
+  /** 
+   * 循環参照ノード集合を作成する
+   * {@link Deps}にある全パッケージについて、こちら側を参照しているものがあれば
+   * それを{@link Cyclics}オブジェクトとしてまとめる
+   */
+  public void buildCyclics() {
+    PkgNode rootNode = getRoot();
+    Set<PkgNode>set = new HashSet<>();
+    deps.stream().forEach(pkgNode-> {      
+      if (pkgNode.deps.contains(this))
+        set.add(pkgNode);
+    });
+    cyclics = new Cyclics(set);
+    packageStream().forEach(pkg->pkg.buildCyclics());
+  }
+  
+  public Deps getDeps() {
+    return deps;
+  }
+  
+  public Cyclics getCyclics() {
+    return cyclics;    
+  }
+  
   /** このノード以下のすべてのノードを訪問する */
   @Override
-  public void visit(Visitor visitor) {
-    super.visit(visitor);
-    nodeMap.values().stream().forEach(child->child.visit(visitor));
+  public void visit(Visitor<Node> visitor) {
+    visitor.visited(this);
+    nodeStream().forEach(child->child.visit(visitor));
   }
+
+  /** このノード以下のすべてのクラスノードを訪問する */
+  @Override
+  public void visitClasses(Visitor<ClsNode>visitor) {    
+    packageStream().forEach(child->child.visitClasses(visitor));
+  }
+
+  /** このノード以下のすべてのパッケージノードを訪問する */
+  @Override
+  public void visitPackages(Visitor<PkgNode>visitor) {
+    visitor.visited(this);
+    packageStream().forEach(child->child.visitPackages(visitor));
+  }
+  
 }

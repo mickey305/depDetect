@@ -48,4 +48,27 @@ public class Import  {
       return;      
     }
   }
+  
+  public PkgNode getDependency(PkgNode thisPkg) {
+
+    PkgNode root = thisPkg.getRoot();
+    
+    // nullが返されることは無い
+    Node foundNode = root.findNode(fullPath);
+    if (foundNode == thisPkg) return null;
+    
+    // クラスノードが見つかった場合。クラスノードの親のパッケージノードを設定する
+    if (foundNode instanceof ClsNode) {
+      return foundNode.parent;
+    }
+    
+    // パッケージノードの場合。見つかったノードのパスを差し引き、残りが".*"の場合にのみOK
+    String foundPath = foundNode.toString();
+    String restPath = fullPath.substring(foundPath.length());
+    if (restPath.equals(".*")) {
+      return (PkgNode)foundNode;
+    }
+    
+    return null;
+  }
 }

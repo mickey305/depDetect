@@ -1,12 +1,12 @@
 package com.cm55.depDetect;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+
 import /* */ java.io.*;
 import java.nio.file.*;
-import java.util.regex.*;
 
 import org.junit.*;
-import static org.junit.Assert.*;
-import static org.hamcrest.Matchers.*;
 
 import com.cm55.depDetect.CommentRemover.*;
 
@@ -16,8 +16,7 @@ public class CommentRemoverTest {
   @Test
   public void test() throws IOException {
     String s = "C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\src_base\\com\\cm55\\gs\\dev\\impl\\JavaCommSerialPortDev.java";
-//    String s = "src/com/cm55/depDetect/CommentRemoverCommentTest.java";
-    CommentRemover e = new CommentRemover();    
+   
     String r = CommentRemover.remove(Paths.get(s));
     System.out.println(r);
   }
