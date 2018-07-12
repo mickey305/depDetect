@@ -10,8 +10,7 @@ public class ClsNode extends Node {
   
   public ClsNode(PkgNode parent, String name, Imports imports) {
     super(parent, name);
+    check();
     this.imports = imports;
-  }
-  
- 
+  } 
 }
