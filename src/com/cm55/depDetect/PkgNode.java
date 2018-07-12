@@ -82,20 +82,20 @@ public class PkgNode extends Node {
     return s.toString();
   }
 
-  /** このパッケージ下の指定されたパスのパッケージを取得する。無い場合はnullを返す */
-  public PkgNode findPackage(String path) {
+  /** 
+   * このパッケージ下の指定されたパスのノードを取得する。
+   * パスに完全に一致するものが存在しなくとも、途中まで一致するノードを返す。
+   * @param path "com.cm55.gs.*", "com.cm55.Sample", "com.cm55.Sample.*"など
+   * @return 指定されたパスに最大限一致するノード。全く一致していない場合でも、このノードを返す。
+   */
+  public Node findNode(String path) {
     int dot = path.indexOf(".");
-    String element = dot < 0? path:path.substring(0, dot);
-    PkgNode pkgNode;
-    try {
-      Node node = nodeMap.get(element);
-      pkgNode = (PkgNode)node;
-      if (pkgNode == null) return null;
-    } catch (Exception ex) {
-      return null;
-    }
-    if (dot < 0) return pkgNode;    
-    return pkgNode.findPackage(path.substring(dot + 1));
+    String nodeName = dot < 0? path:path.substring(0, dot);    
+    Node node = nodeMap.get(nodeName);
+    if (node == null) return this;     
+    if (dot < 0) return node;
+    if (node instanceof ClsNode) return node;
+    return ((PkgNode)node).findNode(path.substring(dot + 1));
   }
 
   /** このノード以下のすべてのノードを訪問する */

@@ -27,7 +27,7 @@ public class Imports {
     for (Import imp: imports) {
       imp.setNode(root);
       if (imp.pkgNode == null) {
-        noNodeSet.add(imp.pkgPath + "," + imp);
+        noNodeSet.add(imp.toString());
       }
     }
     return noNodeSet;

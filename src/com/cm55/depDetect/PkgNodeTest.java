@@ -14,8 +14,8 @@ public class PkgNodeTest {
     PkgNode cm55 = com.ensurePackage("cm55");
     PkgNode depDetect = cm55.ensurePackage("depDetect");
         
-    assertThat(root.findPackage("com.cm55.depDetect"), equalTo(depDetect));   
-    assertThat(root.findPackage("com.cm55.test"), equalTo(null)); 
+    assertThat(root.findNode("com.cm55.depDetect"), equalTo(depDetect));   
+    assertThat(root.findNode("com.cm55.test"), equalTo(null)); 
   }
 
 }

@@ -7,9 +7,6 @@ public class Import  {
    * com.cm55.*, com.cm55.SampleClass.*等
    */
   public final String fullPath;
-
-  /** パッケージ部分のみのパス。"com.cm55"等 */
-  public final String pkgPath;
   
   /** static参照 */
   public final boolean statical;
@@ -24,16 +21,6 @@ public class Import  {
   public Import(String fullPath, boolean statical) {
     this.fullPath = fullPath;
     this.statical = statical;
-    this.pkgPath = getPkgPath(fullPath, statical);
-  }
-  
-  static String getPkgPath(String fullPath, boolean statical) {
-    int omitCount = 1;
-    if (statical) omitCount++;
-    String temp = fullPath;
-    for (int i = 0; i < omitCount; i++)
-      temp = temp.substring(0, temp.lastIndexOf("."));
-    return temp;
   }
   
   @Override
@@ -43,6 +30,22 @@ public class Import  {
   
   /** ルートノードを指定し、このimportのノードを取得する */
   public void setNode(PkgNode root) {
-    pkgNode = root.findPackage(pkgPath);
+
+    // nullが返されることは無い
+    Node foundNode = root.findNode(fullPath);
+    
+    // クラスノードが見つかった場合。クラスノードの親のパッケージノードを設定する
+    if (foundNode instanceof ClsNode) {
+      pkgNode = foundNode.parent;
+      return;
+    }
+    
+    // パッケージノードの場合。見つかったノードのパスを差し引き、残りが".*"の場合にのみOK
+    String foundPath = foundNode.toString();
+    String restPath = fullPath.substring(foundPath.length());
+    if (restPath.equals(".*")) {
+      pkgNode = (PkgNode)foundNode;
+      return;      
+    }
   }
 }
