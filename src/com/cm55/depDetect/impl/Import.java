@@ -1,4 +1,4 @@
-package com.cm55.depDetect;
+package com.cm55.depDetect.impl;
 
 public class Import  {
 
@@ -15,7 +15,7 @@ public class Import  {
    * このimportが参照するパッケージ。
    * import自体がクラスを参照していても、ここではパッケージを取得する。
    */
-  PkgNode pkgNode;
+  PkgNodeImpl pkgNode;
   
   /** import名称とstaticフラグを指定する */
   public Import(String fullPath, boolean statical) {
@@ -29,13 +29,13 @@ public class Import  {
   }
   
   /** ルートノードを指定し、このimportのノードを取得する */
-  public void setNode(PkgNode root) {
+  public void setNode(PkgNodeImpl root) {
 
     // nullが返されることは無い
-    Node foundNode = root.findNode(fullPath);
+    NodeImpl foundNode = root.findNode(fullPath);
     
     // クラスノードが見つかった場合。クラスノードの親のパッケージノードを設定する
-    if (foundNode instanceof ClsNode) {
+    if (foundNode instanceof ClsNodeImpl) {
       pkgNode = foundNode.parent;
       return;
     }
@@ -44,7 +44,7 @@ public class Import  {
     String foundPath = foundNode.toString();
     String restPath = fullPath.substring(foundPath.length());
     if (restPath.equals(".*")) {
-      pkgNode = (PkgNode)foundNode;
+      pkgNode = (PkgNodeImpl)foundNode;
       return;      
     }
   }
@@ -54,15 +54,16 @@ public class Import  {
    * @param thisPkg このimport文が存在するクラスのパッケージ
    * @return 依存パッケージ、もしくはnull（不明）
    */
-  public PkgNode getDependency(PkgNode thisPkg) {
+  public PkgNodeImpl getDependency(PkgNodeImpl thisPkg) {
 
-    PkgNode root = thisPkg.getRoot();
+    // ルートノードを取得する
+    PkgNodeImpl root = thisPkg.getRoot();
     
     // nullが返されることは無い
-    Node foundNode = root.findNode(fullPath);
+    NodeImpl foundNode = root.findNode(fullPath);
     
     // クラスノードが見つかった場合。クラスノードの親のパッケージノードを設定する
-    if (foundNode instanceof ClsNode) {
+    if (foundNode instanceof ClsNodeImpl) {
       if (foundNode.parent == thisPkg) return null;
       return foundNode.parent;
     }
@@ -72,7 +73,7 @@ public class Import  {
     String foundPath = foundNode.toString();
     String restPath = fullPath.substring(foundPath.length());
     if (restPath.equals(".*")) {
-      return (PkgNode)foundNode;
+      return (PkgNodeImpl)foundNode;
     }
     
     return null;

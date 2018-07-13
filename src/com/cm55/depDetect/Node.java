@@ -1,63 +1,25 @@
 package com.cm55.depDetect;
 
-/**
- * パッケージあるいはクラスのノード
- * 下位の{@link PkgNode}がパッケージを表し、{@link ClsNode}がクラスを表す。
- * @author ysugimura
- */
-public abstract class Node implements Comparable<Node> {
+import com.cm55.depDetect.impl.*;
+import com.cm55.depDetect.impl.NodeImpl.Visitor;
 
-  /** 上位パッケージ */
-  public final PkgNode parent;
-  
-  /** パッケージあるいはクラスの名称。"com", "SampleClass"等になる */
-  public final String name;
+public interface Node {
 
-  /** 上位パッケージ、名称を指定する */
-  protected Node(PkgNode parent, String name) {
-    this.parent = parent;
-    this.name = name;
-  }
-
-  /** 上位パッケージ、名称のチェック */
-  protected void check() {
-    if (parent == null || name == null) throw new NullPointerException();
-    if (name.length() == 0) throw new IllegalArgumentException("no name");
-  }
+  /** 名称を取得する */
+  public String getName();
   
-  /** このノードのフルパス文字列を取得する */
-  @Override
-  public String toString() {
-    if (parent == null) return name;
-    String parentPath = parent.toString();
-    if (parentPath.length() == 0) return name;
-    return parentPath + "." + name;
-  }
-
-  /** 名称でのソート用 */
-  @Override
-  public int compareTo(Node o) {
-    return this.name.compareTo(o.name);
-  }
+  /** ツリー構造のルートを取得する */
+  public PkgNode getRoot();
   
-  /** ノードビジター */
-  public interface Visitor<T extends Node> {
-    public void visited(T node);
-  }
-  
-  /** ルートノードを取得する */
-  public PkgNode getRoot() {
-    if (parent == null) return (PkgNode)this;
-    return parent.getRoot();
-  }
+  /** このノードの親パッケージを得る */
+  public PkgNode getParent();
   
   /** このノード以下のノードをすべて訪問する */
-  public abstract void visit(Visitor<Node> visitor);
+  public void visit(Visitor<NodeImpl> visitor);
   
-  public abstract void visitClasses(Visitor<ClsNode>visitor);
-  
-  public abstract void visitPackages(Visitor<PkgNode>visitor);
-  
+  /** このノード以下のすべてのクラスノードを訪問する */
+  public void visitClasses(Visitor<ClsNodeImpl>visitor);
 
-
+  /** このノード以下のすべてのパッケージノードを訪問する */
+  public void visitPackages(Visitor<PkgNodeImpl>visitor);
 }

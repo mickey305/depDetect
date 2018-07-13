@@ -1,4 +1,4 @@
-package com.cm55.depDetect;
+package com.cm55.depDetect.impl;
 
 // /* ブロックコメントではない
 public class CommentRemoverCommentTest {

@@ -1,7 +1,9 @@
-package com.cm55.depDetect;
+package com.cm55.depDetect.impl;
 
 import java.util.*;
 import java.util.stream.*;
+
+import com.cm55.depDetect.*;
 
 /**
  * クラスのimport一覧
@@ -27,8 +29,8 @@ public class Imports {
     return Arrays.stream(imports);
   }
   
-  /** 各{@link Import}に{@link Node}を設定する　*/
-  public Set<String> setNode(PkgNode root) {
+  /** 各{@link Import}に{@link NodeImpl}を設定する　*/
+  public Set<String> setNode(PkgNodeImpl root) {
     Set<String>noNodeSet = new HashSet<String>();
     stream().forEach(imp-> {
       imp.setNode(root);
@@ -40,18 +42,18 @@ public class Imports {
   }
   
   /** このimport一覧に指定パッケージノードが含まれるか */
-  public boolean contains(PkgNode node) {
+  public boolean contains(PkgNodeImpl node) {
     return stream().map(i->i.pkgNode == node).findAny().orElse(false);
   }
   
   
-  public Deps createDependencies(PkgNode thisPkg) {
-    Set<PkgNode>set = new HashSet<>();
+  public Deps createDependencies(PkgNodeImpl thisPkg) {
+    Deps.Builder builder = new Deps.Builder();
     stream().forEach(imp-> {
-      PkgNode dependency = imp.getDependency(thisPkg);
-      if (dependency != null) set.add(dependency);
+      PkgNodeImpl dependency = imp.getDependency(thisPkg);
+      if (dependency != null) builder.add(dependency);
     });
-    return new Deps(set);
+    return builder.build();
   }
   
 }

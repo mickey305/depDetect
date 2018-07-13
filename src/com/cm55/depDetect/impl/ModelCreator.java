@@ -1,4 +1,4 @@
-package com.cm55.depDetect;
+package com.cm55.depDetect.impl;
 
 import java.io.*;
 import java.nio.file.*;
@@ -7,7 +7,7 @@ import java.util.stream.*;
 public class ModelCreator {
 
   public static Model create(Path...tops) throws IOException {
-    PkgNode root = PkgNode.createRoot();
+    PkgNodeImpl root = PkgNodeImpl.createRoot();
     
     // ツリーを作成する
     for (Path top: tops) create(root, top);
@@ -28,9 +28,9 @@ public class ModelCreator {
     return new Model(root, null);
   }
   
-  static void create(PkgNode root, Path top) throws IOException {
+  static void create(PkgNodeImpl root, Path top) throws IOException {
     new Object() {
-      void processChild(PkgNode pkg, Path path) throws IOException {
+      void processChild(PkgNodeImpl pkg, Path path) throws IOException {
         for (Path child: Files.list(path).collect(Collectors.toList())) {   
           String childName = child.getName(child.getNameCount() - 1).toString();
           if (Files.isDirectory(child)) {

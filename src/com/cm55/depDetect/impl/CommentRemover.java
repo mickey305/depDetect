@@ -1,10 +1,9 @@
-package com.cm55.depDetect;
+package com.cm55.depDetect.impl;
 
 import java.io.* ;
 import java.nio.charset.*;
 import java.nio.file.*;
 import java.util.stream.*;
-
 
 /**
  * Javaソースからコメントを削除した文字列を取得する。

@@ -1,4 +1,4 @@
-package com.cm55.depDetect;
+package com.cm55.depDetect.impl;
 
 import org.junit.*;
 

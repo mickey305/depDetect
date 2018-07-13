@@ -1,4 +1,4 @@
-package com.cm55.depDetect;
+package com.cm55.depDetect.impl;
 
 import java.io.*;
 import java.nio.file.*;
@@ -9,7 +9,7 @@ public class ImportExtractorTest {
 
   @Test
   public void test() throws IOException {
-    Imports imports = ImportExtractor.extract(Paths.get("src/com/cm55/depDetect/CommentRemover.java"));
+    Imports imports = ImportExtractor.extract(Paths.get("src/com/cm55/depDetect/impl/CommentRemover.java"));
     System.out.println(imports);
   }
 

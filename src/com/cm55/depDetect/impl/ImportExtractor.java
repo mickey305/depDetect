@@ -1,4 +1,4 @@
-package com.cm55 . depDetect;
+package com.cm55.depDetect.impl;
 
 import java.io.*;
 import java.nio.file.*;
@@ -9,7 +9,6 @@ import java.util.stream.*;
 public class ImportExtractor {
 
   
-  @SuppressWarnings("unchecked")
   public static Imports extract(Path path) throws IOException {
     List<String>lines = 
         Arrays.stream(CommentRemover.remove(path).split("\n"))

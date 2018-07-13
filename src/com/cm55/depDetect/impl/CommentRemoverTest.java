@@ -1,4 +1,4 @@
-package com.cm55.depDetect;
+package com.cm55.depDetect.impl;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -8,7 +8,7 @@ import java.nio.file.*;
 
 import org.junit.*;
 
-import com.cm55.depDetect.CommentRemover.*;
+import com.cm55.depDetect.impl.CommentRemover.*;
 
 public class CommentRemoverTest {
 
