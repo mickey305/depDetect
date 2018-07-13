@@ -120,7 +120,6 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
   /** このパッケージノードの依存セットを作成する */
   public void buildDeps() {
     Deps.Builder builder = new Deps.Builder();
-    Set<PkgNodeImpl>set = new HashSet<>();
     classStream().forEach(clsNode-> {
       Deps d = clsNode.buildDeps();
       builder.add(d);
