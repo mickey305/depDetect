@@ -13,9 +13,9 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
 
   private Map<String, NodeImpl>nodeMap = new HashMap<>();
   
-  private Deps deps;
+  private Refs deps;
   
-  private Cyclics cyclics;
+  private Refs Refs;
   
   /** ルートパッケージノードを作成する */
   public static PkgNodeImpl createRoot() {
@@ -119,9 +119,9 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
 
   /** このパッケージノードの依存セットを作成する */
   public void buildDeps() {
-    Deps.Builder builder = new Deps.Builder();
+    Refs.Builder builder = new Refs.Builder();
     classStream().forEach(clsNode-> {
-      Deps d = clsNode.buildDeps();
+      Refs d = clsNode.buildDeps();
       builder.add(d);
     });
     deps = builder.build();
@@ -130,26 +130,26 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
   
   /** 
    * 循環参照ノード集合を作成する
-   * {@link Deps}にある全パッケージについて、こちら側を参照しているものがあれば
-   * それを{@link Cyclics}オブジェクトとしてまとめる
+   * {@link Refs}にある全パッケージについて、こちら側を参照しているものがあれば
+   * それを{@link Refs}オブジェクトとしてまとめる
    */
   public void buildCyclics() {
     PkgNodeImpl rootNode = getRoot();
-    Cyclics.Builder builder = new Cyclics.Builder();
+    Refs.Builder builder = new Refs.Builder();
     deps.stream().forEach(pkgNode-> {      
       if (pkgNode.getDeps().contains(this))
         builder.add(pkgNode);
     });
-    cyclics = builder.build();
+    Refs = builder.build();
     packageStream().forEach(pkg->pkg.buildCyclics());
   }
   
-  public Deps getDeps() {
+  public Refs getDeps() {
     return deps;
   }
   
-  public Cyclics getCyclics() {
-    return cyclics;    
+  public Refs getCyclics() {
+    return Refs;    
   }
   
   /** このノード以下のすべてのノードを訪問する */

@@ -31,8 +31,8 @@ class Imports {
   }
   
   /** このimport文配列による依存パッケージ集合を作成する */
-  Deps createDependencies(PkgNodeImpl thisPkg) {
-    Deps.Builder builder = new Deps.Builder();
+  Refs createDependencies(PkgNodeImpl thisPkg) {
+    Refs.Builder builder = new Refs.Builder();
     stream().forEach(imp-> {
       ImportDependency impDep = imp.getDependency(thisPkg);
       if (!impDep.selfRef && impDep.found != null) {

@@ -12,7 +12,7 @@ public class ClsNodeImpl extends NodeImpl implements ClsNode {
   public final Imports imports;
 
   /** 依存パッケージ集合 */
-  private Deps deps;
+  private Refs deps;
 
   /**
    * 親ノード、クラス名称、import文配列を指定する
@@ -26,12 +26,12 @@ public class ClsNodeImpl extends NodeImpl implements ClsNode {
     this.imports = imports;
   }   
 
-  public Deps getDeps() {
+  public Refs getDeps() {
     return deps;
   }
   
   /** 依存を構築し、自身に格納する */
-  Deps buildDeps() {
+  Refs buildDeps() {
     return deps = imports.createDependencies(this.parent);
   }
   
