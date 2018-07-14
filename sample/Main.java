@@ -19,11 +19,19 @@ public class Main {
     // 木構造を表示
     System.out.println(root.treeString());
     
+    //root.visitPackages(VisitOrder.PRE,  System.out::println);
+    
     // 循環参照を表示
     root.visitPackages(VisitOrder.PRE, pkg -> {
-      if (pkg.getCyclics().count() == 0)
+      Refs cyclics = pkg.getCyclics();
+      if (cyclics.count() == 0)
         return;
-      System.out.println("-------" + pkg + "\n" + pkg.getCyclics());
+      System.out.println("\n循環依存 " + pkg + "\n" + cyclics);
+      pkg.visitClassesStream().forEach(cls-> {
+        if (cls.getDepsTo().containsAny(cyclics)) {
+          System.out.println("原因クラス " + cls);
+        }
+      });
     });
 
     // 不明パッケージを表示

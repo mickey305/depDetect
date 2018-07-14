@@ -26,6 +26,13 @@ public interface Refs {
    * @return
    */
   public boolean contains(PkgNode node);
+
+  /**
+   * このパッケージ集合の中に、指定されたパッケージ集合のうちの一つでも存在するか
+   * @param refs
+   * @return
+   */
+  public boolean containsAny(Refs refs);
   
   /** この中に含まれるパッケージの数 */
   public int count();

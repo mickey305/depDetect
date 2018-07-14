@@ -237,10 +237,18 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
   public void visit(VisitOrder order, Consumer<Node> visitor) {
     if (order == VisitOrder.PRE) visitor.accept(this);
     nodeStream().forEach(child-> {
-      if (child instanceof PkgNodeImpl) ((PkgNodeImpl)child).visit(VisitOrder.PRE, visitor);
-      visitor.accept(child);
+      if (child instanceof PkgNodeImpl) ((PkgNodeImpl)child).visit(order, visitor);
+      else visitor.accept(child);
     });
     if (order == VisitOrder.POST) visitor.accept(this); 
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public Stream<Node>visitStream(VisitOrder order) {
+    List<Node>nodes = new ArrayList<>();
+    visit(order, n->nodes.add(n));
+    return nodes.stream();
   }
 
   /** このノード以下のすべてのパッケージノードを訪問する */
@@ -258,5 +266,13 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
     visit(null, n-> {
       if (n instanceof ClsNode) visitor.accept((ClsNode)n);
     });
+  }
+  
+  /** {@inheritDoc} */
+  @Override
+  public Stream<ClsNode>visitClassesStream() {
+    List<ClsNode>nodes = new ArrayList<>();
+    visitClasses(n->nodes.add(n));
+    return nodes.stream();
   }
 }

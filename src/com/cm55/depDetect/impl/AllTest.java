@@ -10,7 +10,7 @@ import org.junit.runners.Suite.*;
   CommentRemoverTest.class,
   ImportExtractorTest.class,
   ImportTest.class,
-  PkgNodeTest.class,
+  PkgNodeImplTest.class,
 })
 public class AllTest {
   public static void main(String[] args) {

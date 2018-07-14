@@ -1,6 +1,7 @@
 package com.cm55.depDetect;
 
 import java.util.function.*;
+import java.util.stream.*;
 
 /**
  * パッケージノード
@@ -53,6 +54,9 @@ public interface PkgNode extends Node {
    */
   public void visit(VisitOrder order, Consumer<Node> visitor);
 
+  /** {@link #visit(VisitOrder, Consumer)}の訪問結果のストリームを取得する */
+  public Stream<Node>visitStream(VisitOrder order);
+  
   /** 
    * このノード以下のすべてのパッケージノードを訪問する
    * @param order 木構造探索順序
@@ -65,6 +69,10 @@ public interface PkgNode extends Node {
    * @param visitor 訪問時コールバック
    */
   public void visitClasses(Consumer<ClsNode>visitor);
+
+  /** {@link #visitClasses(Consumer)}の訪問結果ストリームを取得する */
+  public Stream<ClsNode>visitClassesStream();
   
+  /** 木構造文字列を取得する */
   public String treeString();
 }

@@ -52,4 +52,10 @@ public class RefsImpl implements Refs {
   public String toString() {
     return set.stream().map(n->n.toString()).sorted().collect(Collectors.joining("\n"));
   }
+
+  @Override
+  public boolean containsAny(Refs refs) {
+    return ((RefsImpl)refs).set.stream()
+        .map(pkg->set.contains(pkg)).filter(b->b).findAny().orElse(false);
+  }
 }
