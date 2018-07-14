@@ -18,8 +18,6 @@ public class Main {
     System.out.println("\n木構造");
     System.out.println(root.treeString());
     
-    //root.visitPackages(VisitOrder.PRE,  System.out::println);
-    
     // 循環参照を表示
     root.visitPackages(VisitOrder.PRE, pkg -> {
       Refs cyclics = pkg.getCyclics();
@@ -34,12 +32,6 @@ public class Main {
           }
         });
       });
-    });
-
-    // 不明パッケージを表示
-    System.out.println("");
-    Unknowns allUnkowns = root.getAllUnknowns();
-    
+    });    
   }
-
 }
