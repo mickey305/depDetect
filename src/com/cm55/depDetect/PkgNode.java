@@ -3,17 +3,19 @@ package com.cm55.depDetect;
 import java.util.function.*;
 import java.util.stream.*;
 
+import com.cm55.depDetect.impl.*;
+
 /**
  * パッケージノード
  * @author ysugimura
  */
 public interface PkgNode extends Node {
 
+  /** 不明import文集合を取得する */
+  public Unknowns getUnknowns();
+  
   /** 依存パッケージノード集合を取得する */
   public Refs getDepsTo();
-
-  /** 不明依存ノード集合を取得する */
-  public Unknowns getUnknowns();
   
   /** 被依存パッケージノード集合を取得する */
   public Refs getDepsFrom();
@@ -21,9 +23,22 @@ public interface PkgNode extends Node {
   /** 循環依存集合を取得する */
   public Refs getCyclics();
   
-  /** このノード以下の不明依存ノード集合を取得する */
+  /** このノード以下のすべてのノードの不明依存ノード集合の和を取得する */
   public Unknowns getAllUnknowns();
   
+  /** 
+   * このパッケージ直下のすべてのノードを返す。
+   * パッケージノード、クラスノードが混在する。パッケージが先、クラスが後で、それぞれ名前順にソートされている。
+   * {@link NodeImpl#compareTo(NodeImpl)}を参照のこと。
+   */
+  public Stream<Node>nodeStream();
+  
+  /** このパッケージ直下のすべてのクラスノードのストリームを返す。名前順にソートされている */
+  public Stream<ClsNode>classStream();
+  
+  /** このパッケージ直下のすべてのパッケージノードのストリームを返す。名前順にソートされている */
+  public Stream<PkgNode>packageStream();
+    
   /** 
    * 指定パッケージあるいはクラスを最長一致で取得する。
    * <p>

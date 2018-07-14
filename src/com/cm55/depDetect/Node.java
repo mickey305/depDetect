@@ -35,6 +35,4 @@ public interface Node {
    * @return 親パッケージあるいはnull
    */
   public PkgNode getParent();
-  
-
 }

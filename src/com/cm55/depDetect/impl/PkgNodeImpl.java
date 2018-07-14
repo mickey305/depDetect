@@ -32,7 +32,7 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
   private RefsImpl cyclics;
   
   /** ルートパッケージノードを作成する。特殊な用途 */
-  public static PkgNodeImpl createRoot() {
+  static PkgNodeImpl createRoot() {
     return new PkgNodeImpl();
   }
   
@@ -46,11 +46,13 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
    * @param parent
    * @param name
    */
-  public PkgNodeImpl(PkgNodeImpl parent, String name) {
+  PkgNodeImpl(PkgNodeImpl parent, String name) {
     super(parent, name);
     check();
   }
   
+  /** {@inheritDoc} */
+  @Override
   public NodeKind getKind() {
     return NodeKind.PACKAGE;
   }
@@ -62,7 +64,7 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
    * @param name
    * @return
    */
-  public PkgNodeImpl ensurePackage(String name) {
+  PkgNodeImpl ensurePackage(String name) {
     PkgNodeImpl node = (PkgNodeImpl)nodeMap.get(name);
     if (node != null) return node;   
     node = new PkgNodeImpl(this, name);
@@ -77,7 +79,7 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
    * @param imports
    * @return
    */
-  public ClsNodeImpl createClass(String name, Imports imports) {
+  ClsNodeImpl createClass(String name, Imports imports) {
     ClsNodeImpl node = (ClsNodeImpl)nodeMap.get(name);
     if (node != null) return null;
     node = new ClsNodeImpl(this, name, imports);
@@ -85,35 +87,45 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
     return node;
   }
 
-  /** 
-   * このパッケージの下のすべてのノードを返す。
-   * パッケージノード、クラスノードが混在する。パッケージが先、クラスが後で、それぞれ名前順にソートされる。
-   * {@link NodeImpl#compareTo(NodeImpl)}を参照のこと。
-   */
-  public Stream<NodeImpl>nodeStream() {
+  /** {@inheritDoc} */
+  @Override
+  public Stream<Node>nodeStream() {
+    return _nodeStream().map(n->(Node)n);
+  }
+  
+  private Stream<NodeImpl>_nodeStream() {
     return nodeMap.values().stream().sorted();
   }
   
-  /** このパッケージの下のすべてのクラスノードのストリームを返す。名前順にソートされる */
-  public Stream<ClsNodeImpl>classStream() {
-    return nodeMap.values().stream()
-        .filter(node->node instanceof ClsNodeImpl).map(node->(ClsNodeImpl)node).sorted();
+  /** {@inheritDoc} */
+  @Override
+  public Stream<ClsNode>classStream() {
+    return _classStream().map(n->(ClsNode)n);
   }
-  
-  /** このパッケージの下のすべてのパッケージノードのストリームを返す。名前順にソートされる */
-  public Stream<PkgNodeImpl>packageStream() {
-    return nodeMap.values().stream()
-        .filter(node->node instanceof PkgNodeImpl).map(node->(PkgNodeImpl)node).sorted();
-  }
-  
 
+  private Stream<ClsNodeImpl>_classStream() {
+    return nodeMap.values().stream()
+        .filter(node->node instanceof ClsNodeImpl).map(n->(ClsNodeImpl)n).sorted();
+  }
+  
+  /** {@inheritDoc} */
+  @Override
+  public Stream<PkgNode>packageStream() {
+    return _packageStream().map(n->(PkgNode)n);
+  }
+  
+  private Stream<PkgNodeImpl>_packageStream() {
+    return nodeMap.values().stream()
+        .filter(node->node instanceof PkgNodeImpl).map(n->(PkgNodeImpl)n).sorted();
+  }
+  
   /** このパッケージノード以下のすべてをツリー構造として文字列化する。デバッグ用 */
   @Override
   public String treeString() {
     StringBuilder s = new StringBuilder();
     new Object() {
       void printChild(PkgNodeImpl node, String childIndent) {
-        node.nodeStream().forEach(child-> {
+        node._nodeStream().forEach(child-> {
           s.append(childIndent + child.name + "\n");
           if (child instanceof PkgNode) 
             printChild((PkgNodeImpl)child, childIndent + " ");
@@ -178,7 +190,7 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
     unknowns = new UnknownsImpl();
     
     // このパッケージ下のクラスの依存を取得する
-    classStream().forEach(clsNode-> {
+    _classStream().forEach(clsNode-> {
       ClsDeps clsDeps = clsNode.buildDeps();
       depsTo.add(clsDeps.depends);
       unknowns.add(clsDeps.unknowns);
@@ -188,7 +200,7 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
     depsTo.stream().forEach(to->((PkgNodeImpl)to).depsFrom.add(this));    
     
     // 下位のパッケージノードを処理
-    this.packageStream().forEach(child->child.buildRefs());
+    this._packageStream().forEach(child->child.buildRefs());
   }
   
   /** 
@@ -202,7 +214,7 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
     cyclics = depsTo.intersect(depsFrom);
     
     // 下位のパッケージノードを処理
-    packageStream().forEach(pkg->pkg.buildCyclics());
+    _packageStream().forEach(pkg->pkg.buildCyclics());
   }
   
   @Override
@@ -228,7 +240,7 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
   @Override
   public UnknownsImpl getAllUnknowns() {
     UnknownsImpl allUnknowns = this.unknowns.duplicate();
-    packageStream().forEach(pkg -> allUnknowns.add(pkg.getAllUnknowns()));
+    _packageStream().forEach(pkg -> allUnknowns.add(pkg.getAllUnknowns()));
     return allUnknowns;
   }
   

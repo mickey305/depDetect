@@ -6,14 +6,8 @@ import com.cm55.depDetect.impl.*;
 public class Main {
   public static void main(String[] args) throws IOException {
     
-    PkgNode root = TreeCreator.create(
-        /*
-      "C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\src_base",
-      "C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\src_common",
-      "C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\src_server",
-      "C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\src_term"
-      */
-        "C:\\devel\\workspace-neon\\github_depDetect\\src"
+    PkgNode root = TreeCreator.create(      
+      "C:\\devel\\workspace-neon\\github_depDetect\\src"
     );
 
     // 不明importを表示
@@ -31,11 +25,14 @@ public class Main {
       Refs cyclics = pkg.getCyclics();
       if (cyclics.count() == 0)
         return;
-      System.out.println("\n循環依存 " + pkg + "\n" + cyclics);
-      pkg.visitClassesStream().forEach(cls-> {
-        if (cls.getDepsTo().containsAny(cyclics)) {
-          System.out.println("原因クラス " + cls);
-        }
+      System.out.println("\n循環依存発生パッケージ:" + pkg);
+      cyclics.stream().forEach(cyc-> {
+        System.out.println(" 依存先パッケージ：" + cyc);
+        pkg.visitClassesStream().forEach(cls-> {
+          if (cls.getDepsTo().contains(cyc)) {
+            System.out.println("  原因クラス:" + cls);
+          }
+        });
       });
     });
 
