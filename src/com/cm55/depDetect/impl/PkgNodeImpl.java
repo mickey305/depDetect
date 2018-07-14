@@ -185,26 +185,26 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
   @Override
   public UnknownsImpl getAllUnknowns() {
     UnknownsImpl allUnknowns = this.unknowns.duplicate();
-    visitPackages(pkg -> unknowns.add(pkg.getAllUnknowns()));
+    packageStream().forEach(pkg -> unknowns.add(pkg.getAllUnknowns()));
     return allUnknowns;
   }
   
   /** このノード以下のすべてのノードを訪問する */
   @Override
-  public void visit(Visitor<NodeImpl> visitor) {
+  public void visit(Visitor<Node> visitor) {
     visitor.visited(this);
     nodeStream().forEach(child->child.visit(visitor));
   }
 
   /** このノード以下のすべてのクラスノードを訪問する */
   @Override
-  public void visitClasses(Visitor<ClsNodeImpl>visitor) {    
+  public void visitClasses(Visitor<ClsNode>visitor) {    
     packageStream().forEach(child->child.visitClasses(visitor));
   }
 
   /** このノード以下のすべてのパッケージノードを訪問する */
   @Override
-  public void visitPackages(Visitor<PkgNodeImpl>visitor) {
+  public void visitPackages(Visitor<PkgNode>visitor) {
     visitor.visited(this);
     packageStream().forEach(child->child.visitPackages(visitor));
   }

@@ -48,10 +48,6 @@ public abstract class NodeImpl implements Comparable<NodeImpl>, Node {
     return this.name.compareTo(o.name);
   }
   
-  /** ノードビジター */
-  public interface Visitor<T extends NodeImpl> {
-    public void visited(T node);
-  }
   
   /** ルートノードを取得する */
   public PkgNodeImpl getRoot() {
@@ -60,11 +56,11 @@ public abstract class NodeImpl implements Comparable<NodeImpl>, Node {
   }
   
   /** このノード以下のノードをすべて訪問する */
-  public abstract void visit(Visitor<NodeImpl> visitor);
+  public abstract void visit(Visitor<Node> visitor);
   
-  public abstract void visitClasses(Visitor<ClsNodeImpl>visitor);
+  public abstract void visitClasses(Visitor<ClsNode>visitor);
   
-  public abstract void visitPackages(Visitor<PkgNodeImpl>visitor);
+  public abstract void visitPackages(Visitor<PkgNode>visitor);
   
 
 

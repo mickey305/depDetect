@@ -1,7 +1,5 @@
 package com.cm55.depDetect;
 
-import com.cm55.depDetect.impl.*;
-import com.cm55.depDetect.impl.NodeImpl.Visitor;
 
 public interface Node {
 
@@ -15,11 +13,11 @@ public interface Node {
   public PkgNode getParent();
   
   /** このノード以下のノードをすべて訪問する */
-  public void visit(Visitor<NodeImpl> visitor);
+  public void visit(Visitor<Node> visitor);
   
   /** このノード以下のすべてのクラスノードを訪問する */
-  public void visitClasses(Visitor<ClsNodeImpl>visitor);
+  public void visitClasses(Visitor<ClsNode>visitor);
 
   /** このノード以下のすべてのパッケージノードを訪問する */
-  public void visitPackages(Visitor<PkgNodeImpl>visitor);
+  public void visitPackages(Visitor<PkgNode>visitor);
 }

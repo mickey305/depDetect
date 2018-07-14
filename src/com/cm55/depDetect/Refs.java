@@ -6,4 +6,5 @@ package com.cm55.depDetect;
  */
 public interface Refs {
 
+  public int count();
 }
