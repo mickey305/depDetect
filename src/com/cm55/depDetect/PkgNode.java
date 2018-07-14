@@ -65,4 +65,6 @@ public interface PkgNode extends Node {
    * @param visitor 訪問時コールバック
    */
   public void visitClasses(Consumer<ClsNode>visitor);
+  
+  public String treeString();
 }

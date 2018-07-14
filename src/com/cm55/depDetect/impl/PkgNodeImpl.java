@@ -108,16 +108,16 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
   
 
   /** このパッケージノード以下のすべてをツリー構造として文字列化する。デバッグ用 */
+  @Override
   public String treeString() {
     StringBuilder s = new StringBuilder();
     new Object() {
-      void printChild(NodeImpl node, String indent) {
-        s.append(indent + node.name + "\n");
-        if (node instanceof PkgNodeImpl) {
-          ((PkgNodeImpl)node).nodeStream().forEach(child-> {
-            printChild(child, indent + " ");
-          });
-        }
+      void printChild(PkgNodeImpl node, String childIndent) {
+        node.nodeStream().forEach(child-> {
+          s.append(childIndent + child.name + "\n");
+          if (child instanceof PkgNode) 
+            printChild((PkgNodeImpl)child, childIndent + " ");
+        });        
       }
     }.printChild(this, "");
     return s.toString();

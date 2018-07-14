@@ -16,6 +16,9 @@ public class Main {
         "C:\\devel\\workspace-neon\\github_depDetect\\src"
     );
 
+    // 木構造を表示
+    System.out.println(root.treeString());
+    
     // 循環参照を表示
     root.visitPackages(VisitOrder.PRE, pkg -> {
       if (pkg.getCyclics().count() == 0)
