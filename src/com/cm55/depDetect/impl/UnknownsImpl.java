@@ -32,4 +32,10 @@ public class UnknownsImpl implements Unknowns {
   public Stream<String>stream() {
     return set.stream().sorted();
   }
+  
+  /** デバッグ用 */
+  @Override
+  public String toString() {
+    return stream().collect(Collectors.joining(","));
+  }
 }

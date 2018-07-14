@@ -228,7 +228,7 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
   @Override
   public UnknownsImpl getAllUnknowns() {
     UnknownsImpl allUnknowns = this.unknowns.duplicate();
-    packageStream().forEach(pkg -> unknowns.add(pkg.getAllUnknowns()));
+    packageStream().forEach(pkg -> allUnknowns.add(pkg.getAllUnknowns()));
     return allUnknowns;
   }
   
