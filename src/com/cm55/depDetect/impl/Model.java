@@ -5,10 +5,10 @@ import java.util.*;
 public class Model {
 
   private PkgNodeImpl root;
-  private Set<String>noNodeSet;
   
-  public Model(PkgNodeImpl root, Set<String>noNodeSet) {
+  public Model(PkgNodeImpl root) {
     this.root = root;
-    this.noNodeSet = noNodeSet;
   }
+  
+  
 }

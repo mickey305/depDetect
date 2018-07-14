@@ -5,6 +5,9 @@ public interface PkgNode extends Node {
   /** 依存パッケージノード集合を取得する */
   public Refs getDepsTo();
 
+  /** 不明依存ノード集合を取得する */
+  public Unknowns getUnknowns();
+  
   /** 被依存パッケージノード集合を取得する */
   public Refs getDepsFrom();
   

@@ -11,15 +11,25 @@ import com.cm55.depDetect.*;
  */
 public class PkgNodeImpl extends NodeImpl implements PkgNode {
 
+  /** 
+   * このパッケージノード下のパッケージノードあるいはクラスノードの名前マップ
+   * 名前は"com"あるいは"Sample"など
+   */
   private Map<String, NodeImpl>nodeMap = new HashMap<>();
   
+  /** このパッケージノードが依存するパッケージノードの集合 */
   private RefsImpl depsTo;
+
+  /** このパッケージノードが依存する不明パッケージノード集合 */
+  private UnknownsImpl unknowns;
   
+  /** このパッケージノードが依存されているパッケージノードの集合 */
   private RefsImpl depsFrom = new RefsImpl();
-  
+
+  /** 循環依存パッケージノード。依存であり、被依存のパッケージノード */
   private RefsImpl cyclics;
   
-  /** ルートパッケージノードを作成する */
+  /** ルートパッケージノードを作成する。特殊な用途 */
   public static PkgNodeImpl createRoot() {
     return new PkgNodeImpl();
   }
@@ -122,11 +132,13 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
   /** このパッケージノードの依存セットを作成する */
   public void buildRefs() {
     depsTo = new RefsImpl();
+    unknowns = new UnknownsImpl();
     
     // このパッケージ下のクラスの依存を取得する
     classStream().forEach(clsNode-> {
-      RefsImpl clsDeps = clsNode.buildDeps();
-      depsTo.add(clsDeps);
+      ClsDeps clsDeps = clsNode.buildDeps();
+      depsTo.add(clsDeps.depends);
+      unknowns.add(clsDeps.unknowns);
     });
 
     // 依存先のrefsFromを設定
@@ -153,6 +165,11 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
   @Override
   public RefsImpl getDepsTo() {
     return depsTo;
+  }
+  
+  @Override
+  public UnknownsImpl getUnknowns() {
+    return unknowns;
   }
   
   @Override

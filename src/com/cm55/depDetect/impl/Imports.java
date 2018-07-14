@@ -31,14 +31,15 @@ class Imports {
   }
   
   /** このimport文配列による依存パッケージ集合を作成する */
-  RefsImpl createDependencies(PkgNodeImpl thisPkg) {
-    RefsImpl refs = new RefsImpl();
+  ClsDeps createDependencies(PkgNodeImpl thisPkg) {
+    RefsImpl depends = new RefsImpl();
+    UnknownsImpl unknowns = new UnknownsImpl();
     stream().forEach(imp-> {
       ImportDependency impDep = imp.getDependency(thisPkg);
-      if (!impDep.selfRef && impDep.found != null) {
-        refs.add(impDep.found);
-      }
+      if (impDep.selfRef) return;
+      if (impDep.found != null) depends.add(impDep.found);
+      if (impDep.notFound != null) unknowns.add(impDep.notFound);
     });
-    return refs;
+    return new ClsDeps(depends, unknowns);
   }  
 }

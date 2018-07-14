@@ -20,12 +20,19 @@ public class ModelCreator {
     // あるパッケージの依存するパッケージから逆方向の依存があれば循環依存としてマークする
     root.buildCyclics();
         
+    // 循環参照を表示
     root.visitPackages(pkg-> {
       if (pkg.getCyclics().count() == 0) return;
       System.out.println("-------" + pkg + "\n" + pkg.getCyclics());
     });
+
+    // 不明パッケージを表示
+    System.out.println("");
+    UnknownsImpl unknowns = new UnknownsImpl();
+    root.visitPackages(pkg->unknowns.add(pkg.getUnknowns()));
+    unknowns.stream().forEach(System.out::println);
     
-    return new Model(root, null);
+    return new Model(root);
   }
   
   static void create(PkgNodeImpl root, Path top) throws IOException {
