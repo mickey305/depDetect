@@ -13,9 +13,11 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
 
   private Map<String, NodeImpl>nodeMap = new HashMap<>();
   
-  private Refs deps;
+  private RefsImpl depsTo;
   
-  private Refs Refs;
+  private RefsImpl depsFrom = new RefsImpl();
+  
+  private RefsImpl cyclics;
   
   /** ルートパッケージノードを作成する */
   public static PkgNodeImpl createRoot() {
@@ -118,14 +120,20 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
   }
 
   /** このパッケージノードの依存セットを作成する */
-  public void buildDeps() {
-    Refs.Builder builder = new Refs.Builder();
+  public void buildRefs() {
+    depsTo = new RefsImpl();
+    
+    // このパッケージ下のクラスの依存を取得する
     classStream().forEach(clsNode-> {
-      Refs d = clsNode.buildDeps();
-      builder.add(d);
+      RefsImpl clsDeps = clsNode.buildDeps();
+      depsTo.add(clsDeps);
     });
-    deps = builder.build();
-    this.packageStream().forEach(child->child.buildDeps());
+
+    // 依存先のrefsFromを設定
+    depsTo.stream().forEach(to->to.depsFrom.add(this));    
+    
+    // 下位のパッケージノードを処理
+    this.packageStream().forEach(child->child.buildRefs());
   }
   
   /** 
@@ -134,22 +142,27 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
    * それを{@link Refs}オブジェクトとしてまとめる
    */
   public void buildCyclics() {
-    PkgNodeImpl rootNode = getRoot();
-    Refs.Builder builder = new Refs.Builder();
-    deps.stream().forEach(pkgNode-> {      
-      if (pkgNode.getDeps().contains(this))
-        builder.add(pkgNode);
-    });
-    Refs = builder.build();
+    
+    // 依存先と被依存元の共通部分を取得する
+    cyclics = depsTo.intersect(depsFrom);
+    
+    // 下位のパッケージノードを処理
     packageStream().forEach(pkg->pkg.buildCyclics());
   }
   
-  public Refs getDeps() {
-    return deps;
+  @Override
+  public RefsImpl getDepsTo() {
+    return depsTo;
   }
   
-  public Refs getCyclics() {
-    return Refs;    
+  @Override
+  public RefsImpl getDepsFrom() {
+    return depsFrom;
+  }
+  
+  @Override
+  public RefsImpl getCyclics() {
+    return cyclics;
   }
   
   /** このノード以下のすべてのノードを訪問する */
