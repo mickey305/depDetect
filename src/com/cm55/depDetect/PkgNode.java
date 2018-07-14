@@ -14,5 +14,6 @@ public interface PkgNode extends Node {
   /** 循環依存集合を取得する */
   public Refs getCyclics();
   
-  
+  /** このノード以下の不明依存ノード集合を取得する */
+  public Unknowns getAllUnknowns();
 }

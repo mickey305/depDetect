@@ -182,6 +182,13 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
     return cyclics;
   }
   
+  @Override
+  public UnknownsImpl getAllUnknowns() {
+    UnknownsImpl allUnknowns = this.unknowns.duplicate();
+    visitPackages(pkg -> unknowns.add(pkg.getAllUnknowns()));
+    return allUnknowns;
+  }
+  
   /** このノード以下のすべてのノードを訪問する */
   @Override
   public void visit(Visitor<NodeImpl> visitor) {

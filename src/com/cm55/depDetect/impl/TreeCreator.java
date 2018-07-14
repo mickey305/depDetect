@@ -2,11 +2,26 @@ package com.cm55.depDetect.impl;
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.*;
 import java.util.stream.*;
 
-public class ModelCreator {
+import com.cm55.depDetect.*;
 
-  public static Model create(Path...tops) throws IOException {
+public class TreeCreator {
+
+  public static PkgNode create(File...paths) throws IOException {
+    return create(Arrays.stream(paths).map(path->path.toPath()).collect(Collectors.toList()));
+  }
+  
+  public static PkgNode create(String...paths) throws IOException {
+    return create(Arrays.stream(paths).map(path->Paths.get(path)).collect(Collectors.toList()));
+  }
+  
+  public static PkgNode create(Path...tops) throws IOException {
+    return create(Arrays.stream(tops).collect(Collectors.toList()));
+  }
+  
+  public static PkgNode create(List<Path>tops) throws IOException {
     PkgNodeImpl root = PkgNodeImpl.createRoot();
     
     // ツリーを作成する
@@ -19,20 +34,8 @@ public class ModelCreator {
     // 循環依存をビルドする
     // あるパッケージの依存するパッケージから逆方向の依存があれば循環依存としてマークする
     root.buildCyclics();
-        
-    // 循環参照を表示
-    root.visitPackages(pkg-> {
-      if (pkg.getCyclics().count() == 0) return;
-      System.out.println("-------" + pkg + "\n" + pkg.getCyclics());
-    });
-
-    // 不明パッケージを表示
-    System.out.println("");
-    UnknownsImpl unknowns = new UnknownsImpl();
-    root.visitPackages(pkg->unknowns.add(pkg.getUnknowns()));
-    unknowns.stream().forEach(System.out::println);
     
-    return new Model(root);
+    return root;
   }
   
   static void create(PkgNodeImpl root, Path top) throws IOException {
@@ -53,17 +56,5 @@ public class ModelCreator {
       }
     }.processChild(root, top);
   }
-  
-  
-  public static void main(String[]args) throws IOException {
-    Model model = create( 
-        
-      Paths.get("C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\src_base"),
-      Paths.get("C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\src_common"),
-      Paths.get("C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\src_server"),
-      Paths.get("C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\src_term")
-      
-      //  Paths.get("src")
-    );
-  }
+
 }

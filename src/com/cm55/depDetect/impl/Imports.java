@@ -3,7 +3,6 @@ package com.cm55.depDetect.impl;
 import java.util.*;
 import java.util.stream.*;
 
-import com.cm55.depDetect.*;
 import com.cm55.depDetect.impl.Import.*;
 
 /**
