@@ -5,6 +5,7 @@ import java.util.function.*;
 import java.util.stream.*;
 
 import com.cm55.depDetect.*;
+import com.cm55.depDetect.Node;
 
 /**
  * パッケージを表すノード

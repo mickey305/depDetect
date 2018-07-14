@@ -1,7 +1,5 @@
 package com.cm55.depDetect.impl;
 
-import java.util.function.*;
-
 import com.cm55.depDetect.*;
 
 /**
