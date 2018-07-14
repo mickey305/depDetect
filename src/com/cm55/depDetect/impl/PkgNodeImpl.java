@@ -119,16 +119,48 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
    * @param path "com.cm55.gs.*", "com.cm55.Sample", "com.cm55.Sample.*"など
    * @return 指定されたパスに最大限一致するノード。全く一致していない場合でも、このノードを返す。
    */
-  public NodeImpl findNode(String path) {
-    int dot = path.indexOf(".");
-    String nodeName = dot < 0? path:path.substring(0, dot);    
-    NodeImpl node = nodeMap.get(nodeName);
-    if (node == null) return this;     
-    if (dot < 0) return node;
-    if (node instanceof ClsNodeImpl) return node;
-    return ((PkgNodeImpl)node).findNode(path.substring(dot + 1));
+  @Override
+  public NodeImpl findMaximum(String path) {
+    return find(path, false);
+  }
+  
+  @Override
+  public NodeImpl findExact(String path) {
+    return find(path, true);
   }
 
+  /**
+   * 
+   * @param path
+   * @param exactMode
+   * @return
+   */
+  private NodeImpl find(String path, boolean exactMode) {
+    
+    // 最初の要素を取得し、直下のノードを調べる
+    int dotPosition = path.indexOf(".");
+    String nodeName = dotPosition < 0? path:path.substring(0, dotPosition);    
+    NodeImpl node = nodeMap.get(nodeName);
+        
+    // 最初の要素に対応するノードが存在しない場合
+    if (node == null) {
+      // 完全一致モードの場合はnullを返す
+      if (exactMode) return null;
+      
+     // 完全一致モードでない場合は本ノードを返す。
+      return this;     
+    }
+    
+    // 最初の要素に対応するノードが存在する場合
+    
+    // これ以上パス要素が無い場合、あるいはクラスノードの場合には、このノードを返す。
+    if (dotPosition < 0) return node;
+    if (node instanceof ClsNodeImpl) return node;
+    
+    // 下位ノードに処理を任せる。
+    return ((PkgNodeImpl)node).find(path.substring(dotPosition + 1), exactMode);
+  }
+  
   /** このパッケージノードの依存セットを作成する */
   public void buildRefs() {
     depsTo = new RefsImpl();

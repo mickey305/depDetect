@@ -15,8 +15,8 @@ public class PkgNodeTest {
     PkgNodeImpl cm55 = com.ensurePackage("cm55");
     PkgNodeImpl depDetect = cm55.ensurePackage("depDetect");
         
-    assertThat(root.findNode("com.cm55.depDetect"), equalTo(depDetect));   
-    assertThat(root.findNode("com.cm55.test"), equalTo(cm55)); 
+    assertThat(root.findMaximum("com.cm55.depDetect"), equalTo(depDetect));   
+    assertThat(root.findMaximum("com.cm55.test"), equalTo(cm55)); 
   }
 
 }
