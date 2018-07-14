@@ -51,6 +51,10 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
     check();
   }
   
+  public NodeKind getKind() {
+    return NodeKind.PACKAGE;
+  }
+  
   /** 
    * このパッケージノード下の、指定された名称のパッケージノードを確保する。
    * あればそれを返し、無ければ作成して返す。
@@ -81,21 +85,25 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
     return node;
   }
 
-  /** このパッケージの下のすべてのノードを返す。パッケージノード、クラスノードが混在する */
+  /** 
+   * このパッケージの下のすべてのノードを返す。
+   * パッケージノード、クラスノードが混在する。パッケージが先、クラスが後で、それぞれ名前順にソートされる。
+   * {@link NodeImpl#compareTo(NodeImpl)}を参照のこと。
+   */
   public Stream<NodeImpl>nodeStream() {
     return nodeMap.values().stream().sorted();
   }
   
-  /** このパッケージの下のすべてのクラスノードのストリームを返す */
+  /** このパッケージの下のすべてのクラスノードのストリームを返す。名前順にソートされる */
   public Stream<ClsNodeImpl>classStream() {
     return nodeMap.values().stream()
-        .filter(node->node instanceof ClsNodeImpl).map(node->(ClsNodeImpl)node);
+        .filter(node->node instanceof ClsNodeImpl).map(node->(ClsNodeImpl)node).sorted();
   }
   
-  /** このパッケージの下のすべてのパッケージノードのストリームを返す */
+  /** このパッケージの下のすべてのパッケージノードのストリームを返す。名前順にソートされる */
   public Stream<PkgNodeImpl>packageStream() {
     return nodeMap.values().stream()
-        .filter(node->node instanceof PkgNodeImpl).map(node->(PkgNodeImpl)node);
+        .filter(node->node instanceof PkgNodeImpl).map(node->(PkgNodeImpl)node).sorted();
   }
   
 
@@ -226,18 +234,18 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
   
   /** このノード以下のすべてのノードを訪問する */
   @Override
-  public void visit(Order order, Consumer<Node> visitor) {
-    if (order == Order.PRE) visitor.accept(this);
+  public void visit(VisitOrder order, Consumer<Node> visitor) {
+    if (order == VisitOrder.PRE) visitor.accept(this);
     nodeStream().forEach(child-> {
-      if (child instanceof PkgNodeImpl) ((PkgNodeImpl)child).visit(Order.PRE, visitor);
+      if (child instanceof PkgNodeImpl) ((PkgNodeImpl)child).visit(VisitOrder.PRE, visitor);
       visitor.accept(child);
     });
-    if (order == Order.POST) visitor.accept(this); 
+    if (order == VisitOrder.POST) visitor.accept(this); 
   }
 
   /** このノード以下のすべてのクラスノードを訪問する */
   @Override
-  public void visitClasses(Order order, Consumer<ClsNode>visitor) {    
+  public void visitClasses(VisitOrder order, Consumer<ClsNode>visitor) {    
     visit(order, n-> {
       if (n instanceof ClsNode) visitor.accept((ClsNode)n);
     });
@@ -245,7 +253,7 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
 
   /** このノード以下のすべてのパッケージノードを訪問する */
   @Override
-  public void visitPackages(Order order, Consumer<PkgNode>visitor) {
+  public void visitPackages(VisitOrder order, Consumer<PkgNode>visitor) {
     visit(order, n-> {
       if (n instanceof PkgNode) visitor.accept((PkgNode)n);
     });

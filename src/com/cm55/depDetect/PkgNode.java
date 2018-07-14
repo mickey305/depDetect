@@ -36,13 +36,13 @@ public interface PkgNode extends Node {
   
   /** このノード以下のノードをすべて訪問する 
    * @param order TODO*/
-  public void visit(Order order, Consumer<Node> visitor);
+  public void visit(VisitOrder order, Consumer<Node> visitor);
   
   /** このノード以下のすべてのクラスノードを訪問する 
    * @param order TODO*/
-  public void visitClasses(Order order, Consumer<ClsNode>visitor);
+  public void visitClasses(VisitOrder order, Consumer<ClsNode>visitor);
 
   /** このノード以下のすべてのパッケージノードを訪問する 
    * @param order TODO*/
-  public void visitPackages(Order order, Consumer<PkgNode>visitor);
+  public void visitPackages(VisitOrder order, Consumer<PkgNode>visitor);
 }

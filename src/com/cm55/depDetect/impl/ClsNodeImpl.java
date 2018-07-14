@@ -26,6 +26,11 @@ public class ClsNodeImpl extends NodeImpl implements ClsNode {
     this.imports = imports;
   }   
 
+  @Override
+  public NodeKind getKind() {
+    return NodeKind.CLASS;
+  }
+  
   public ClsDeps getDepsTo() {
     return depsTo;
   }

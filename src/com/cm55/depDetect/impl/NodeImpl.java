@@ -42,10 +42,16 @@ public abstract class NodeImpl implements Comparable<NodeImpl>, Node {
     return parentPath + "." + name;
   }
 
-  /** 名称でのソート用 */
+  /** 
+   * ソート用。
+   * パッケージノード、クラスノード混在の場合には、パッケージを先とする。
+   * それぞれの中で名前順デソートする。
+   */
   @Override
-  public int compareTo(NodeImpl o) {
-    return this.name.compareTo(o.name);
+  public int compareTo(NodeImpl that) {  
+    int r = this.getKind().ordinal() - that.getKind().ordinal();
+    if (r != 0) return r;
+    return this.name.compareTo(that.name);
   }
   
   

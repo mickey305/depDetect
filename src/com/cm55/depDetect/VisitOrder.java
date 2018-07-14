@@ -1,6 +1,6 @@
 package com.cm55.depDetect;
 
-public enum Order {
+public enum VisitOrder {
   PRE,
   POST;
 }

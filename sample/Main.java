@@ -17,7 +17,7 @@ public class Main {
     );
 
     // 循環参照を表示
-    root.visitPackages(Order.PRE, pkg -> {
+    root.visitPackages(VisitOrder.PRE, pkg -> {
       if (pkg.getCyclics().count() == 0)
         return;
       System.out.println("-------" + pkg + "\n" + pkg.getCyclics());
