@@ -12,5 +12,10 @@ package com.cm55.depDetect;
  */
 public interface ClsNode extends Node {
 
+  /** このクラスが依存するパッケージ集合を得る */
+  public Refs getDepsTo();
 
+  /** このクラスが依存する不明import文字列集合を得る */
+  public Unknowns getUnknowns();
+  
 }

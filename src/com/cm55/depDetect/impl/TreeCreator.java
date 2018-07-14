@@ -7,6 +7,10 @@ import java.util.stream.*;
 
 import com.cm55.depDetect.*;
 
+/**
+ * 木構造クリエータ
+ * @author ysugimura
+ */
 public class TreeCreator {
 
   public static PkgNode create(File...paths) throws IOException {

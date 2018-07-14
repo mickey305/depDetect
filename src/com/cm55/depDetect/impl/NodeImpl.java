@@ -36,6 +36,11 @@ public abstract class NodeImpl implements Comparable<NodeImpl>, Node {
   /** このノードのフルパス文字列を取得する */
   @Override
   public String toString() {
+    return getPath();
+  }
+
+  @Override
+  public String getPath() {
     if (parent == null) return name;
     String parentPath = parent.toString();
     if (parentPath.length() == 0) return name;
@@ -45,13 +50,13 @@ public abstract class NodeImpl implements Comparable<NodeImpl>, Node {
   /** 
    * ソート用。
    * パッケージノード、クラスノード混在の場合には、パッケージを先とする。
-   * それぞれの中で名前順デソートする。
+   * それぞれの中でパス順でソートする。
    */
   @Override
   public int compareTo(NodeImpl that) {  
     int r = this.getKind().ordinal() - that.getKind().ordinal();
     if (r != 0) return r;
-    return this.name.compareTo(that.name);
+    return this.getPath().compareTo(that.getPath());
   }
   
   

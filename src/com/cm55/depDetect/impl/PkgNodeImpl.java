@@ -185,7 +185,7 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
     });
 
     // 依存先のrefsFromを設定
-    depsTo.stream().forEach(to->to.depsFrom.add(this));    
+    depsTo.stream().forEach(to->((PkgNodeImpl)to).depsFrom.add(this));    
     
     // 下位のパッケージノードを処理
     this.packageStream().forEach(child->child.buildRefs());
@@ -243,14 +243,6 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
     if (order == VisitOrder.POST) visitor.accept(this); 
   }
 
-  /** このノード以下のすべてのクラスノードを訪問する */
-  @Override
-  public void visitClasses(VisitOrder order, Consumer<ClsNode>visitor) {    
-    visit(order, n-> {
-      if (n instanceof ClsNode) visitor.accept((ClsNode)n);
-    });
-  }
-
   /** このノード以下のすべてのパッケージノードを訪問する */
   @Override
   public void visitPackages(VisitOrder order, Consumer<PkgNode>visitor) {
@@ -258,5 +250,13 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
       if (n instanceof PkgNode) visitor.accept((PkgNode)n);
     });
   }
-  
+
+
+  /** このノード以下のすべてのクラスノードを訪問する */
+  @Override
+  public void visitClasses(Consumer<ClsNode>visitor) {    
+    visit(null, n-> {
+      if (n instanceof ClsNode) visitor.accept((ClsNode)n);
+    });
+  }
 }

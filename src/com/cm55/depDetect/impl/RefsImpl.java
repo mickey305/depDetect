@@ -26,16 +26,19 @@ public class RefsImpl implements Refs {
     set.addAll(refs.set);
   }
   
+  @Override
   public int count() {
     return set.size();
   }
-  
+
+  @Override
   public boolean contains(PkgNode node) {
     return set.contains(node);
   }
   
-  public Stream<PkgNodeImpl>stream() {
-    return set.stream();
+  @Override
+  public Stream<PkgNode>stream() {
+    return set.stream().map(n->(PkgNode)n).sorted();
   }
 
   public RefsImpl intersect(RefsImpl that) {

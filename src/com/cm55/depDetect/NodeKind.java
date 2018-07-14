@@ -1,6 +1,10 @@
 package com.cm55.depDetect;
 
+/**
+ * ノード種別
+ * @author ysugimura
+ */
 public enum NodeKind {
-  PACKAGE,
-  CLASS;
+  PACKAGE, // パッケージ
+  CLASS; // クラス
 }
