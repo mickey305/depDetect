@@ -1,5 +1,7 @@
 package com.cm55.depDetect;
 
+import java.util.function.*;
+
 /**
  * パッケージノード
  * @author ysugimura
@@ -31,4 +33,16 @@ public interface PkgNode extends Node {
   public Node findMaximum(String path);
   
   public Node findExact(String path);
+  
+  /** このノード以下のノードをすべて訪問する 
+   * @param order TODO*/
+  public void visit(Order order, Consumer<Node> visitor);
+  
+  /** このノード以下のすべてのクラスノードを訪問する 
+   * @param order TODO*/
+  public void visitClasses(Order order, Consumer<ClsNode>visitor);
+
+  /** このノード以下のすべてのパッケージノードを訪問する 
+   * @param order TODO*/
+  public void visitPackages(Order order, Consumer<PkgNode>visitor);
 }

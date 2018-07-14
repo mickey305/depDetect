@@ -1,5 +1,7 @@
 package com.cm55.depDetect.impl;
 
+import java.util.function.*;
+
 import com.cm55.depDetect.*;
 
 /**
@@ -34,22 +36,5 @@ public class ClsNodeImpl extends NodeImpl implements ClsNode {
   ClsDeps buildDeps() {
     return depsTo = imports.createDependencies(this.parent);
   }
-  
-  /** すべてのノードを訪問する場合 */
-  @Override
-  public void visit(Visitor<Node>visitor) {    
-    visitor.visited(this);
-  }
-  
-  /** クラスノードのみを訪問する場合 */
-  @Override
-  public void visitClasses(Visitor<ClsNode>visitor) {    
-    visitor.visited(this);
-  }
 
-  /** パッケージノードのみを訪問する場合 */
-  @Override
-  public void visitPackages(Visitor<PkgNode>visitor) {
-    // nop
-  }
 }

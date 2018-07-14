@@ -1,5 +1,7 @@
 package com.cm55.depDetect.impl;
 
+import java.util.function.*;
+
 import com.cm55.depDetect.*;
 
 /**
@@ -54,14 +56,4 @@ public abstract class NodeImpl implements Comparable<NodeImpl>, Node {
     if (parent == null) return (PkgNodeImpl)this;
     return parent.getRoot();
   }
-  
-  /** このノード以下のノードをすべて訪問する */
-  public abstract void visit(Visitor<Node> visitor);
-  
-  public abstract void visitClasses(Visitor<ClsNode>visitor);
-  
-  public abstract void visitPackages(Visitor<PkgNode>visitor);
-  
-
-
 }

@@ -1,6 +1,7 @@
 package com.cm55.depDetect.impl;
 
 import java.util.*;
+import java.util.function.*;
 import java.util.stream.*;
 
 import com.cm55.depDetect.*;
@@ -124,6 +125,7 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
     return find(path, false);
   }
   
+  /** {@inheritDoc} */
   @Override
   public NodeImpl findExact(String path) {
     return find(path, true);
@@ -223,22 +225,29 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
   
   /** このノード以下のすべてのノードを訪問する */
   @Override
-  public void visit(Visitor<Node> visitor) {
-    visitor.visited(this);
-    nodeStream().forEach(child->child.visit(visitor));
+  public void visit(Order order, Consumer<Node> visitor) {
+    if (order == Order.PRE) visitor.accept(this);
+    nodeStream().forEach(child-> {
+      if (child instanceof PkgNodeImpl) ((PkgNodeImpl)child).visit(Order.PRE, visitor);
+      visitor.accept(child);
+    });
+    if (order == Order.POST) visitor.accept(this); 
   }
 
   /** このノード以下のすべてのクラスノードを訪問する */
   @Override
-  public void visitClasses(Visitor<ClsNode>visitor) {    
-    packageStream().forEach(child->child.visitClasses(visitor));
+  public void visitClasses(Order order, Consumer<ClsNode>visitor) {    
+    visit(order, n-> {
+      if (n instanceof ClsNode) visitor.accept((ClsNode)n);
+    });
   }
 
   /** このノード以下のすべてのパッケージノードを訪問する */
   @Override
-  public void visitPackages(Visitor<PkgNode>visitor) {
-    visitor.visited(this);
-    packageStream().forEach(child->child.visitPackages(visitor));
+  public void visitPackages(Order order, Consumer<PkgNode>visitor) {
+    visit(order, n-> {
+      if (n instanceof PkgNode) visitor.accept((PkgNode)n);
+    });
   }
   
 }
