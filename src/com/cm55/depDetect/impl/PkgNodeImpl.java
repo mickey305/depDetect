@@ -239,6 +239,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   public RefsImpl getDepsTo(boolean descend) {
     if (!descend) return depsTo;
     RefsImpl impl = new RefsImpl();
+    impl.add(depsTo);
     this._packageStream().forEach(child->impl.add(child.getDepsTo(true)));
     return impl;
   }
@@ -247,6 +248,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   public RefsImpl getDepsFrom(boolean descend) {
     if (!descend) return depsFrom;
     RefsImpl impl = new RefsImpl();
+    impl.add(depsFrom);
     _packageStream().forEach(child->impl.add(child.getDepsFrom(true)));
     return impl;
   }
@@ -255,6 +257,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   public RefsImpl getCyclics(boolean descend) {
     if (!descend) return cyclics;
     RefsImpl impl = new RefsImpl();
+    impl.add(cyclics);
     _packageStream().forEach(child->impl.add(child.getCyclics(true)));
     return impl;
   }
