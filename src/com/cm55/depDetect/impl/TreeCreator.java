@@ -18,7 +18,11 @@ public class TreeCreator {
   }
   
   public static PkgNode create(String...paths) throws IOException {
-    return create(Arrays.stream(paths).map(path->Paths.get(path)).collect(Collectors.toList()));
+    return create(Arrays.stream(paths).collect(Collectors.toList()));
+  }
+  
+  public static PkgNode create(Collection<String>paths) throws IOException {
+    return create(paths.stream().map(path->Paths.get(path)).collect(Collectors.toList()));
   }
   
   public static PkgNode create(Path...tops) throws IOException {

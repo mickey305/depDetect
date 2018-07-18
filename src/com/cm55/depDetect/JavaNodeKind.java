@@ -4,7 +4,7 @@ package com.cm55.depDetect;
  * ノード種別
  * @author ysugimura
  */
-public enum NodeKind {
+public enum JavaNodeKind {
   PACKAGE, // パッケージ
   CLASS; // クラス
 }

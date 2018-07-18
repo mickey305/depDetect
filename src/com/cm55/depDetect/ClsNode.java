@@ -10,7 +10,7 @@ package com.cm55.depDetect;
  * </p>
  * @author ysugimura
  */
-public interface ClsNode extends Node {
+public interface ClsNode extends JavaNode {
 
   /** 
    * このクラスが依存するパッケージ集合を得る。

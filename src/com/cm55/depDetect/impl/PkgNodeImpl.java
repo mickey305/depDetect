@@ -5,19 +5,19 @@ import java.util.function.*;
 import java.util.stream.*;
 
 import com.cm55.depDetect.*;
-import com.cm55.depDetect.Node;
+import com.cm55.depDetect.JavaNode;
 
 /**
  * パッケージを表すノード
  * @author ysugimura
  */
-public class PkgNodeImpl extends NodeImpl implements PkgNode {
+public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
 
   /** 
    * このパッケージノード下のパッケージノードあるいはクラスノードの名前マップ
    * 名前は"com"あるいは"Sample"など
    */
-  private Map<String, NodeImpl>nodeMap = new HashMap<>();
+  private Map<String, JavaNodeImpl>nodeMap = new HashMap<>();
   
   /** このパッケージノードが依存するパッケージノードの集合 */
   private RefsImpl depsTo;
@@ -53,8 +53,8 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
   
   /** {@inheritDoc} */
   @Override
-  public NodeKind getKind() {
-    return NodeKind.PACKAGE;
+  public JavaNodeKind getKind() {
+    return JavaNodeKind.PACKAGE;
   }
   
   /** 
@@ -65,35 +65,43 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
    * @return
    */
   PkgNodeImpl ensurePackage(String name) {
-    PkgNodeImpl node = (PkgNodeImpl)nodeMap.get(name);
-    if (node != null) return node;   
-    node = new PkgNodeImpl(this, name);
-    nodeMap.put(name,  node);
-    return node;
+    JavaNodeImpl node = nodeMap.get(name);
+    if (node == null) {
+      node = new PkgNodeImpl(this, name);
+      nodeMap.put(name,  node);
+      return (PkgNodeImpl)node;      
+    }
+    if (node instanceof ClsNodeImpl) {
+      // クラスノードではいけない
+      throw new IllegalStateException(node.getPath() + " is already registered as Class ");
+    }
+    return (PkgNodeImpl)node;
    }
   
   /**
    * このパッケージノード下の、指定された名称のクラスを作成する。
-   * 既に存在する場合は何もせずnullを返す。作成した場合はその{@link ClsNodeImpl}を返す。
+   * 既に存在する場合は例外。作成した場合はその{@link ClsNodeImpl}を返す。
    * @param name
    * @param imports
    * @return
    */
   ClsNodeImpl createClass(String name, Imports imports) {
-    ClsNodeImpl node = (ClsNodeImpl)nodeMap.get(name);
-    if (node != null) return null;
-    node = new ClsNodeImpl(this, name, imports);
-    nodeMap.put(name,  node);
-    return node;
+    JavaNodeImpl node = nodeMap.get(name);
+    if (node == null) {
+      node = new ClsNodeImpl(this, name, imports);
+      nodeMap.put(name,  node);
+      return (ClsNodeImpl)node;      
+    }
+    throw new IllegalStateException(node.getPath() + " is already registered");
   }
 
   /** {@inheritDoc} */
   @Override
-  public Stream<Node>nodeStream() {
-    return _nodeStream().map(n->(Node)n);
+  public Stream<JavaNode>nodeStream() {
+    return _nodeStream().map(n->(JavaNode)n);
   }
   
-  private Stream<NodeImpl>_nodeStream() {
+  private Stream<JavaNodeImpl>_nodeStream() {
     return nodeMap.values().stream().sorted();
   }
   
@@ -142,13 +150,13 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
    * @return 指定されたパスに最大限一致するノード。全く一致していない場合でも、このノードを返す。
    */
   @Override
-  public NodeImpl findMaximum(String path) {
+  public JavaNodeImpl findMaximum(String path) {
     return find(path, false);
   }
   
   /** {@inheritDoc} */
   @Override
-  public NodeImpl findExact(String path) {
+  public JavaNodeImpl findExact(String path) {
     return find(path, true);
   }
 
@@ -158,12 +166,12 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
    * @param exactMode
    * @return
    */
-  private NodeImpl find(String path, boolean exactMode) {
+  private JavaNodeImpl find(String path, boolean exactMode) {
     
     // 最初の要素を取得し、直下のノードを調べる
     int dotPosition = path.indexOf(".");
     String nodeName = dotPosition < 0? path:path.substring(0, dotPosition);    
-    NodeImpl node = nodeMap.get(nodeName);
+    JavaNodeImpl node = nodeMap.get(nodeName);
         
     // 最初の要素に対応するノードが存在しない場合
     if (node == null) {
@@ -216,25 +224,39 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
     // 下位のパッケージノードを処理
     _packageStream().forEach(pkg->pkg.buildCyclics());
   }
+
   
   @Override
-  public RefsImpl getDepsTo() {
-    return depsTo;
+  public UnknownsImpl getUnknowns(boolean descend) {
+    if (!descend) return unknowns;
+    UnknownsImpl impl = new UnknownsImpl();
+    impl.add(unknowns);
+    _packageStream().forEach(child->impl.add(child.getUnknowns(true)));
+    return impl;
   }
   
   @Override
-  public UnknownsImpl getUnknowns() {
-    return unknowns;
+  public RefsImpl getDepsTo(boolean descend) {
+    if (!descend) return depsTo;
+    RefsImpl impl = new RefsImpl();
+    this._packageStream().forEach(child->impl.add(child.getDepsTo(true)));
+    return impl;
   }
   
   @Override
-  public RefsImpl getDepsFrom() {
-    return depsFrom;
+  public RefsImpl getDepsFrom(boolean descend) {
+    if (!descend) return depsFrom;
+    RefsImpl impl = new RefsImpl();
+    _packageStream().forEach(child->impl.add(child.getDepsFrom(true)));
+    return impl;
   }
   
   @Override
-  public RefsImpl getCyclics() {
-    return cyclics;
+  public RefsImpl getCyclics(boolean descend) {
+    if (!descend) return cyclics;
+    RefsImpl impl = new RefsImpl();
+    _packageStream().forEach(child->impl.add(child.getCyclics(true)));
+    return impl;
   }
   
   @Override
@@ -246,7 +268,7 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
   
   /** このノード以下のすべてのノードを訪問する */
   @Override
-  public void visit(VisitOrder order, Consumer<Node> visitor) {
+  public void visit(VisitOrder order, Consumer<JavaNode> visitor) {
     if (order == VisitOrder.PRE) visitor.accept(this);
     nodeStream().forEach(child-> {
       if (child instanceof PkgNodeImpl) ((PkgNodeImpl)child).visit(order, visitor);
@@ -257,8 +279,8 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
 
   /** {@inheritDoc} */
   @Override
-  public Stream<Node>visitStream(VisitOrder order) {
-    List<Node>nodes = new ArrayList<>();
+  public Stream<JavaNode>visitStream(VisitOrder order) {
+    List<JavaNode>nodes = new ArrayList<>();
     visit(order, n->nodes.add(n));
     return nodes.stream();
   }
@@ -286,5 +308,20 @@ public class PkgNodeImpl extends NodeImpl implements PkgNode {
     List<ClsNode>nodes = new ArrayList<>();
     visitClasses(n->nodes.add(n));
     return nodes.stream();
+  }
+
+  @Override
+  public int nodeCount() {
+    return nodeMap.size();
+  }
+
+  @Override
+  public int classCount() {
+    return (int)classStream().filter(n->n instanceof ClsNode).count();
+  }
+
+  @Override
+  public int packageCount() {
+    return (int)packageStream().filter(n->n instanceof PkgNode).count();
   }
 }

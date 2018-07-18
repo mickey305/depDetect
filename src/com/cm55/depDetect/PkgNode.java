@@ -9,19 +9,36 @@ import com.cm55.depDetect.impl.*;
  * パッケージノード
  * @author ysugimura
  */
-public interface PkgNode extends Node {
+public interface PkgNode extends JavaNode {
 
-  /** 不明import文集合を取得する */
-  public Unknowns getUnknowns();
+  /** 
+   * 不明import文集合を取得する 
+   * descend=trueの場合はこのパッケージノード以下のすべて
+   * @param descend true:このパッケージ以下すべて、false:このパッケージのみ
+   * @return 不明import文集合
+   */
+  public Unknowns getUnknowns(boolean descend);
   
-  /** 依存パッケージノード集合を取得する */
-  public Refs getDepsTo();
+  /** 依存パッケージノード集合を取得する
+   * descend=trueの場合はこのパッケージノード以下のすべて
+   * @param descend true:このパッケージ以下すべて、false:このパッケージのみ
+   * @return 依存パッケージ集合
+   */
+  public Refs getDepsTo(boolean descend);
   
-  /** 被依存パッケージノード集合を取得する */
-  public Refs getDepsFrom();
+  /** 被依存パッケージノード集合を取得する
+   * descend=trueの場合はこのパッケージノード以下のすべて
+   * @param descend true:このパッケージ以下すべて、false:このパッケージのみ
+   * @return 被依存パッケージノード集合
+   */
+  public Refs getDepsFrom(boolean descend);
   
-  /** 循環依存集合を取得する */
-  public Refs getCyclics();
+  /** 循環依存集合を取得する
+   * descend=trueの場合はこのパッケージノード以下のすべて
+   * @param descend true:このパッケージ以下すべて、false:このパッケージのみ
+   * @return 循環依存集合
+   */
+  public Refs getCyclics(boolean descend);
   
   /** このノード以下のすべてのノードの不明依存ノード集合の和を取得する */
   public Unknowns getAllUnknowns();
@@ -29,9 +46,9 @@ public interface PkgNode extends Node {
   /** 
    * このパッケージ直下のすべてのノードを返す。
    * パッケージノード、クラスノードが混在する。パッケージが先、クラスが後で、それぞれ名前順にソートされている。
-   * {@link NodeImpl#compareTo(NodeImpl)}を参照のこと。
+   * {@link JavaNodeImpl#compareTo(JavaNodeImpl)}を参照のこと。
    */
-  public Stream<Node>nodeStream();
+  public Stream<JavaNode>nodeStream();
   
   /** このパッケージ直下のすべてのクラスノードのストリームを返す。名前順にソートされている */
   public Stream<ClsNode>classStream();
@@ -39,6 +56,10 @@ public interface PkgNode extends Node {
   /** このパッケージ直下のすべてのパッケージノードのストリームを返す。名前順にソートされている */
   public Stream<PkgNode>packageStream();
     
+  public int nodeCount();
+  public int classCount();
+  public int packageCount();
+  
   /** 
    * 指定パッケージあるいはクラスを最長一致で取得する。
    * <p>
@@ -49,7 +70,7 @@ public interface PkgNode extends Node {
    * @param path パス
    * @return 見つかったパッケージノードあるいはクラスノード。nullになることは無い。
    */
-  public Node findMaximum(String path);
+  public JavaNode findMaximum(String path);
 
   /** 
    * 指定パッケージあるいはクラスを完全一致で取得する。
@@ -60,17 +81,17 @@ public interface PkgNode extends Node {
    * @param path パス
    * @return 見つかったパッケージノードあるいはクラスノード。見つからなかった場合にはnullを返す。
    */
-  public Node findExact(String path);
+  public JavaNode findExact(String path);
   
   /** 
    * このノード以下のノードをすべて訪問する 
    * @param order 木構造探索順序
    * @param visitor 訪問時コールバック
    */
-  public void visit(VisitOrder order, Consumer<Node> visitor);
+  public void visit(VisitOrder order, Consumer<JavaNode> visitor);
 
   /** {@link #visit(VisitOrder, Consumer)}の訪問結果のストリームを取得する */
-  public Stream<Node>visitStream(VisitOrder order);
+  public Stream<JavaNode>visitStream(VisitOrder order);
   
   /** 
    * このノード以下のすべてのパッケージノードを訪問する

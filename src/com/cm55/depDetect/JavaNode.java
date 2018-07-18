@@ -4,7 +4,7 @@ package com.cm55.depDetect;
  * パッケージあるいはクラスを表すノード
  * @author ysugimura
  */
-public interface Node {
+public interface JavaNode {
 
   /** 
    * 名称を取得する。"com"、"Sample"など
@@ -20,9 +20,9 @@ public interface Node {
   
   /** 
    * ノード種類を取得する。
-   * @return {@link NodeKind}
+   * @return {@link JavaNodeKind}
    */
-  public NodeKind getKind();
+  public JavaNodeKind getKind();
   
   /** 
    * このノードが所属するツリー構造のルートを取得する

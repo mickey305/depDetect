@@ -7,7 +7,7 @@ import com.cm55.depDetect.*;
  * 下位の{@link PkgNodeImpl}がパッケージを表し、{@link ClsNodeImpl}がクラスを表す。
  * @author ysugimura
  */
-public abstract class NodeImpl implements Comparable<NodeImpl>, Node {
+public abstract class JavaNodeImpl implements Comparable<JavaNodeImpl>, JavaNode {
 
   /** 上位パッケージ */
   public final PkgNodeImpl parent;
@@ -22,7 +22,7 @@ public abstract class NodeImpl implements Comparable<NodeImpl>, Node {
   public String getName() { return name; }
   
   /** 上位パッケージ、名称を指定する */
-  protected NodeImpl(PkgNodeImpl parent, String name) {
+  protected JavaNodeImpl(PkgNodeImpl parent, String name) {
     this.parent = parent;
     this.name = name;
   }
@@ -53,7 +53,7 @@ public abstract class NodeImpl implements Comparable<NodeImpl>, Node {
    * それぞれの中でパス順でソートする。
    */
   @Override
-  public int compareTo(NodeImpl that) {  
+  public int compareTo(JavaNodeImpl that) {  
     int r = this.getKind().ordinal() - that.getKind().ordinal();
     if (r != 0) return r;
     return this.getPath().compareTo(that.getPath());

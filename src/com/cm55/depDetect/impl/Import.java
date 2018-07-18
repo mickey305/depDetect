@@ -45,7 +45,7 @@ class Import  {
     PkgNodeImpl root = thisPkg.getRoot();
     
     // ルートから、import文のフルパスを探す。nullが返されることは無い
-    NodeImpl foundNode = root.findMaximum(fullPath);
+    JavaNodeImpl foundNode = root.findMaximum(fullPath);
     
     // クラスノードが見つかった場合。クラスノードの親のパッケージノードを設定する
     if (foundNode instanceof ClsNodeImpl) {

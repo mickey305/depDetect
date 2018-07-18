@@ -6,7 +6,7 @@ import com.cm55.depDetect.*;
  * クラスノード
  * @author ysugimura
  */
-public class ClsNodeImpl extends NodeImpl implements ClsNode {
+public class ClsNodeImpl extends JavaNodeImpl implements ClsNode {
  
   /** import文配列 */
   public final Imports imports;
@@ -30,8 +30,8 @@ public class ClsNodeImpl extends NodeImpl implements ClsNode {
   }   
 
   @Override
-  public NodeKind getKind() {
-    return NodeKind.CLASS;
+  public JavaNodeKind getKind() {
+    return JavaNodeKind.CLASS;
   }
   
   @Override

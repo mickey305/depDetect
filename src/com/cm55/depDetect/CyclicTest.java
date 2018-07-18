@@ -9,7 +9,7 @@ import com.cm55.depDetect.impl.*;
 public class CyclicTest {
 
   public CyclicTest() {
-    NodeImpl a;
+    JavaNodeImpl a;
   }
 
 }
