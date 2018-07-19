@@ -27,6 +27,9 @@ public interface Refs {
    */
   public boolean contains(PkgNode node);
 
+  /** 指定された{@link Refs}との共通部分があるか */
+  public boolean intersects(Refs that);
+  
   /**
    * このパッケージ集合の中に、指定されたパッケージ集合のうちの一つでも存在するか
    * @param refs

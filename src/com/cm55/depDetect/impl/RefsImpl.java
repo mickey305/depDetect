@@ -30,6 +30,7 @@ public class RefsImpl implements Refs {
   public int count() {
     return set.size();
   }
+  
 
   @Override
   public boolean contains(PkgNode node) {
@@ -41,10 +42,17 @@ public class RefsImpl implements Refs {
     return set.stream().map(n->(PkgNode)n).sorted();
   }
 
-  public RefsImpl intersect(RefsImpl that) {
+  /** 共通部分を取得する */
+  RefsImpl intersect(RefsImpl that) {
     Set<PkgNodeImpl>set = new HashSet<>(this.set);
     set.retainAll(that.set);
     return new RefsImpl(set);
+  }
+
+  /** 共通部が存在するか判定する */
+  @Override
+  public boolean intersects(Refs that) {
+    return ((RefsImpl)that).set.stream().filter(n->set.contains(n)).findAny().isPresent();
   }
   
   /** デバッグ用文字列化 */
