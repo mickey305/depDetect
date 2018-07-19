@@ -21,7 +21,7 @@ public class Main {
     // 循環参照を表示
     root.visitPackages(VisitOrder.PRE, pkg -> {
       Refs cyclics = pkg.getCyclics(false);
-      if (cyclics.count() == 0)
+      if (cyclics.size() == 0)
         return;
       System.out.println("\n循環依存発生パッケージ:" + pkg);
       cyclics.stream().forEach(cyc-> {

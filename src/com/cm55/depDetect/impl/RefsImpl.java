@@ -27,7 +27,7 @@ public class RefsImpl implements Refs {
   }
   
   @Override
-  public int count() {
+  public int size() {
     return set.size();
   }
   
@@ -43,18 +43,13 @@ public class RefsImpl implements Refs {
   }
 
   /** 共通部分を取得する */
-  RefsImpl intersect(RefsImpl that) {
+  @Override
+  public RefsImpl getIntersect(Refs that) {
     Set<PkgNodeImpl>set = new HashSet<>(this.set);
-    set.retainAll(that.set);
+    set.retainAll(((RefsImpl)that).set);
     return new RefsImpl(set);
   }
 
-  /** 共通部が存在するか判定する */
-  @Override
-  public boolean intersects(Refs that) {
-    return ((RefsImpl)that).set.stream().filter(n->set.contains(n)).findAny().isPresent();
-  }
-  
   /** デバッグ用文字列化 */
   @Override
   public String toString() {
@@ -62,8 +57,7 @@ public class RefsImpl implements Refs {
   }
 
   @Override
-  public boolean containsAny(Refs refs) {
-    return ((RefsImpl)refs).set.stream()
-        .map(pkg->set.contains(pkg)).filter(b->b).findAny().orElse(false);
+  public boolean containsAny(Refs that) {
+    return ((RefsImpl)that).set.stream().filter(n->set.contains(n)).findAny().isPresent();
   }
 }

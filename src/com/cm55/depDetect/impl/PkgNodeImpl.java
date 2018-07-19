@@ -219,7 +219,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   public void buildCyclics() {
     
     // 依存先と被依存元の共通部分を取得する
-    cyclics = depsTo.intersect(depsFrom);
+    cyclics = depsTo.getIntersect(depsFrom);
     
     // 下位のパッケージノードを処理
     _packageStream().forEach(pkg->pkg.buildCyclics());

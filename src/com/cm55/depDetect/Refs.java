@@ -27,8 +27,9 @@ public interface Refs {
    */
   public boolean contains(PkgNode node);
 
-  /** 指定された{@link Refs}との共通部分があるか */
-  public boolean intersects(Refs that);
+
+  /** 指定された{@link Refs}の共通部分を取得する */
+  public Refs getIntersect(Refs that);
   
   /**
    * このパッケージ集合の中に、指定されたパッケージ集合のうちの一つでも存在するか
@@ -38,5 +39,5 @@ public interface Refs {
   public boolean containsAny(Refs refs);
   
   /** この中に含まれるパッケージの数 */
-  public int count();
+  public int size();
 }
