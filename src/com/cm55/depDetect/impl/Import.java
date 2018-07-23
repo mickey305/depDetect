@@ -56,7 +56,7 @@ class Import  {
     
     // パッケージノードが見つかった場合。
     // 見つかったノードのパスを差し引き、残りが".*"の場合にのみ完全なパッケージが見つかったことになる。
-    if (foundNode == thisPkg) return null;
+    if (foundNode == thisPkg) return new ImportDependency();
     String foundPath = foundNode.toString();
     String restPath = fullPath.substring(foundPath.length());
     if (restPath.equals(".*")) {
