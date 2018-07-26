@@ -12,7 +12,7 @@ public class Main {
 
     // 不明importを表示
     System.out.println("不明import");
-    root.getAllUnknowns().stream().forEach(System.out::println);
+    root.getUnknowns(true).stream().forEach(System.out::println);
     
     // 木構造を表示
     System.out.println("\n木構造");

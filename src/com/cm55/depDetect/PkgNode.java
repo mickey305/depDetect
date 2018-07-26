@@ -39,10 +39,7 @@ public interface PkgNode extends JavaNode {
    * @return 循環依存集合
    */
   public Refs getCyclics(boolean descend);
-  
-  /** このノード以下のすべてのノードの不明依存ノード集合の和を取得する */
-  public Unknowns getAllUnknowns();
-  
+
   /** 
    * このパッケージ直下のすべてのノードを返す。
    * パッケージノード、クラスノードが混在する。パッケージが先、クラスが後で、それぞれ名前順にソートされている。
@@ -111,4 +108,7 @@ public interface PkgNode extends JavaNode {
   
   /** 木構造文字列を取得する */
   public String treeString();
+  
+  /** このノードが、指定ノードと同じかあるいは祖先か */
+  public boolean isAscendOf(PkgNode node);
 }

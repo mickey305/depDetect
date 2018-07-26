@@ -225,7 +225,10 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     _packageStream().forEach(pkg->pkg.buildCyclics());
   }
 
-  
+  /** 
+   * このパッケージの不明import集合を取得する。
+   * descend=trueのときはこのパッケージ以下のすべての不明import集合
+   */
   @Override
   public UnknownsImpl getUnknowns(boolean descend) {
     if (!descend) return unknowns;
@@ -235,39 +238,68 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     return impl;
   }
   
+  /**
+   * このパッケージの依存パッケージ集合を取得する。
+   * descend=trueのときは、このパッケージ以下のすべての依存パッケージ集合を取得するが、
+   * ただし、このパッケージ以下のサブツリー内のパッケージは除去する
+   */
   @Override
-  public RefsImpl getDepsTo(boolean descend) {
+  public RefsImpl getDepsTo(boolean descend) {    
     if (!descend) return depsTo;
-    RefsImpl impl = new RefsImpl();
-    impl.add(depsTo);
-    this._packageStream().forEach(child->impl.add(child.getDepsTo(true)));
-    return impl;
+    RefsImpl refs = getDepsToDescend();
+    refs.removeDescend(this);
+    return refs;
   }
   
+  /** このパッケージ以下の依存パッケージ集合を取得する。このパッケージ以下のサブツリーのパッケージも含む */
+  RefsImpl getDepsToDescend() {
+    RefsImpl impl = new RefsImpl();
+    impl.add(depsTo);
+    this._packageStream().forEach(child->impl.add(child.getDepsToDescend()));
+    return impl;
+  }
+
+  /**
+   * このパッケージの被依存パッケージ集合を取得する。
+   * descend=trueのときは、このパッケージ以下のすべての被依存パッケージ集合を取得するが、
+   * ただし、このパッケージ以下のサブツリー内のパッケージは除去する。
+   */
   @Override
   public RefsImpl getDepsFrom(boolean descend) {
     if (!descend) return depsFrom;
+    RefsImpl refs = getDepsFromDescend();
+    refs.removeDescend(this);
+    return refs;
+  }
+
+  /** このパッケージ以下の被依存パッケージ集合を取得する。このパッケージ以下のサブツリーのパッケージも含む */
+  RefsImpl getDepsFromDescend() {
     RefsImpl impl = new RefsImpl();
     impl.add(depsFrom);
-    _packageStream().forEach(child->impl.add(child.getDepsFrom(true)));
+    _packageStream().forEach(child->impl.add(child.getDepsFromDescend()));
     return impl;
   }
   
+  /**
+   * このパッケージの循環依存パッケージ集合を取得する。
+   * descend=trueのときは、このパッケージ以下のサブツリー内全パッケージの循環依存パッケージ集合を取得するが、
+   * ただし、サブ突っリー内のパッケージは除去する
+   */
   @Override
-  public RefsImpl getCyclics(boolean descend) {
+  public RefsImpl getCyclics(boolean descend) {  
     if (!descend) return cyclics;
+    RefsImpl refs = getCyclicsDescend();
+    refs.removeDescend(this);
+    return refs;
+  }
+  
+  RefsImpl getCyclicsDescend() {
     RefsImpl impl = new RefsImpl();
     impl.add(cyclics);
-    _packageStream().forEach(child->impl.add(child.getCyclics(true)));
+    _packageStream().forEach(child->impl.add(child.getCyclicsDescend()));
     return impl;
   }
-  
-  @Override
-  public UnknownsImpl getAllUnknowns() {
-    UnknownsImpl allUnknowns = this.unknowns.duplicate();
-    _packageStream().forEach(pkg -> allUnknowns.add(pkg.getAllUnknowns()));
-    return allUnknowns;
-  }
+
   
   /** このノード以下のすべてのノードを訪問する */
   @Override
@@ -326,5 +358,17 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   @Override
   public int packageCount() {
     return (int)packageStream().filter(n->n instanceof PkgNode).count();
+  }
+  
+  /**
+   * このノードが指定ノードと同じかあるいは先祖にあたるかを調べる
+   */
+  @Override
+  public boolean isAscendOf(PkgNode node) {
+    while (node != null) {
+      if (this == node) return true;
+      node = node.getParent();
+    }
+    return false;
   }
 }
