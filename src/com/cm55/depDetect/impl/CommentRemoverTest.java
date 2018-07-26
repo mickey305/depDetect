@@ -18,7 +18,7 @@ public class CommentRemoverTest {
     String s = "C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\src_base\\com\\cm55\\gs\\dev\\impl\\JavaCommSerialPortDev.java";
    
     String r = CommentRemover.remove(Paths.get(s));
-    System.out.println(r);
+    //ystem.out.println(r);
   }
 
 

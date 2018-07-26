@@ -97,34 +97,46 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
 
   /** {@inheritDoc} */
   @Override
-  public Stream<JavaNode>nodeStream() {
-    return _nodeStream().map(n->(JavaNode)n);
+  public Stream<JavaNode>nodeStream(boolean descend) {
+    return _nodeStream(descend).map(n->(JavaNode)n);
   }
   
-  private Stream<JavaNodeImpl>_nodeStream() {
-    return nodeMap.values().stream().sorted();
+  private Stream<JavaNodeImpl>_nodeStream(boolean descend) {
+    if (!descend)
+      return nodeMap.values().stream().sorted();
+    List<JavaNodeImpl>nodes = new ArrayList<>();
+    visit(VisitOrder.PRE, n->nodes.add((JavaNodeImpl)n));
+    return nodes.stream();
   }
   
   /** {@inheritDoc} */
   @Override
-  public Stream<ClsNode>classStream() {
-    return _classStream().map(n->(ClsNode)n);
+  public Stream<ClsNode>classStream(boolean descend) {
+    return _classStream(descend).map(n->(ClsNode)n);
   }
 
-  private Stream<ClsNodeImpl>_classStream() {
-    return nodeMap.values().stream()
+  private Stream<ClsNodeImpl>_classStream(boolean descend) {
+    if (!descend)
+      return nodeMap.values().stream()
         .filter(node->node instanceof ClsNodeImpl).map(n->(ClsNodeImpl)n).sorted();
+    List<ClsNodeImpl>nodes = new ArrayList<>();
+    this.visitClasses(n->nodes.add((ClsNodeImpl)n));
+    return nodes.stream();
   }
   
   /** {@inheritDoc} */
   @Override
-  public Stream<PkgNode>packageStream() {
-    return _packageStream().map(n->(PkgNode)n);
+  public Stream<PkgNode>packageStream(boolean descend) {
+    return _packageStream(descend).map(n->(PkgNode)n);
   }
   
-  private Stream<PkgNodeImpl>_packageStream() {
-    return nodeMap.values().stream()
+  private Stream<PkgNodeImpl>_packageStream(boolean descend) {
+    if (!descend)
+      return nodeMap.values().stream()
         .filter(node->node instanceof PkgNodeImpl).map(n->(PkgNodeImpl)n).sorted();
+    List<PkgNodeImpl>nodes = new ArrayList<>();
+    this.visitPackages(VisitOrder.PRE, n->nodes.add((PkgNodeImpl)n));
+    return nodes.stream();
   }
   
   /** このパッケージノード以下のすべてをツリー構造として文字列化する。デバッグ用 */
@@ -133,7 +145,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     StringBuilder s = new StringBuilder();
     new Object() {
       void printChild(PkgNodeImpl node, String childIndent) {
-        node._nodeStream().forEach(child-> {
+        node._nodeStream(false).forEach(child-> {
           s.append(childIndent + child.name + "\n");
           if (child instanceof PkgNode) 
             printChild((PkgNodeImpl)child, childIndent + " ");
@@ -198,7 +210,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     unknowns = new UnknownsImpl();
     
     // このパッケージ下のクラスの依存を取得する
-    _classStream().forEach(clsNode-> {
+    _classStream(false).forEach(clsNode-> {
       ClsDeps clsDeps = clsNode.buildDeps();
       depsTo.add(clsDeps.depends);
       unknowns.add(clsDeps.unknowns);
@@ -208,7 +220,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     depsTo.stream().forEach(to->((PkgNodeImpl)to).depsFrom.add(this));    
     
     // 下位のパッケージノードを処理
-    this._packageStream().forEach(child->child.buildRefs());
+    this._packageStream(false).forEach(child->child.buildRefs());
   }
   
   /** 
@@ -222,7 +234,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     cyclics = depsTo.getIntersect(depsFrom);
     
     // 下位のパッケージノードを処理
-    _packageStream().forEach(pkg->pkg.buildCyclics());
+    _packageStream(false).forEach(pkg->pkg.buildCyclics());
   }
 
   /** 
@@ -234,7 +246,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     if (!descend) return unknowns;
     UnknownsImpl impl = new UnknownsImpl();
     impl.add(unknowns);
-    _packageStream().forEach(child->impl.add(child.getUnknowns(true)));
+    _packageStream(false).forEach(child->impl.add(child.getUnknowns(true)));
     return impl;
   }
   
@@ -255,7 +267,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   RefsImpl getDepsToDescend() {
     RefsImpl impl = new RefsImpl();
     impl.add(depsTo);
-    this._packageStream().forEach(child->impl.add(child.getDepsToDescend()));
+    this._packageStream(false).forEach(child->impl.add(child.getDepsToDescend()));
     return impl;
   }
 
@@ -276,7 +288,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   RefsImpl getDepsFromDescend() {
     RefsImpl impl = new RefsImpl();
     impl.add(depsFrom);
-    _packageStream().forEach(child->impl.add(child.getDepsFromDescend()));
+    _packageStream(false).forEach(child->impl.add(child.getDepsFromDescend()));
     return impl;
   }
   
@@ -296,7 +308,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   RefsImpl getCyclicsDescend() {
     RefsImpl impl = new RefsImpl();
     impl.add(cyclics);
-    _packageStream().forEach(child->impl.add(child.getCyclicsDescend()));
+    _packageStream(false).forEach(child->impl.add(child.getCyclicsDescend()));
     return impl;
   }
 
@@ -305,7 +317,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   @Override
   public void visit(VisitOrder order, Consumer<JavaNode> visitor) {
     if (order == VisitOrder.PRE) visitor.accept(this);
-    nodeStream().forEach(child-> {
+    nodeStream(false).forEach(child-> {
       if (child instanceof PkgNodeImpl) ((PkgNodeImpl)child).visit(order, visitor);
       else visitor.accept(child);
     });
@@ -346,18 +358,18 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   }
 
   @Override
-  public int nodeCount() {
-    return nodeMap.size();
+  public int nodeCount(boolean descend) {
+    return (int)nodeStream(descend).count();
   }
 
   @Override
-  public int classCount() {
-    return (int)classStream().filter(n->n instanceof ClsNode).count();
+  public int classCount(boolean descend) {
+    return (int)classStream(descend).filter(n->n instanceof ClsNode).count();
   }
 
   @Override
-  public int packageCount() {
-    return (int)packageStream().filter(n->n instanceof PkgNode).count();
+  public int packageCount(boolean descend) {
+    return (int)packageStream(descend).filter(n->n instanceof PkgNode).count();
   }
   
   /**

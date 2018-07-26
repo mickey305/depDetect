@@ -45,17 +45,35 @@ public interface PkgNode extends JavaNode {
    * パッケージノード、クラスノードが混在する。パッケージが先、クラスが後で、それぞれ名前順にソートされている。
    * {@link JavaNodeImpl#compareTo(JavaNodeImpl)}を参照のこと。
    */
-  public Stream<JavaNode>nodeStream();
+  public Stream<JavaNode>nodeStream(boolean descend);
   
   /** このパッケージ直下のすべてのクラスノードのストリームを返す。名前順にソートされている */
-  public Stream<ClsNode>classStream();
+  public Stream<ClsNode>classStream(boolean descend);
   
   /** このパッケージ直下のすべてのパッケージノードのストリームを返す。名前順にソートされている */
-  public Stream<PkgNode>packageStream();
+  public Stream<PkgNode>packageStream(boolean descend);
     
-  public int nodeCount();
-  public int classCount();
-  public int packageCount();
+  /**
+   * descend=falseのときは、このノード直下のノード数を返す。
+   * trueのときは、このノード以下すべてのノード数を返す。
+   * @param descend
+   * @return
+   */
+  public int nodeCount(boolean descend);
+  
+  /**
+   * descend=falseのときは、このノード直下のクラス数を返す。
+   * trueのときは、このノード以下のすべてのクラス数を返す。
+   * @return
+   */
+  public int classCount(boolean descend);
+  
+  /**
+   * descend=falseのときは、このノード直下のパッケージノード数を返す。
+   * trueのときは、このノード以下すべてのパッケージノード数を返す。
+   * @return
+   */
+  public int packageCount(boolean descend);
   
   /** 
    * 指定パッケージあるいはクラスを最長一致で取得する。
