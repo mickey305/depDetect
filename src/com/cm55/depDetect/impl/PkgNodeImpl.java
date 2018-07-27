@@ -98,13 +98,24 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   
   /** {@inheritDoc} */
   @Override
-  public Stream<ClsNode>classStream(boolean descend) {
+  public Stream<ClsNode>childClasses(boolean descend) {
     if (!descend) return duClassStream().map(n->(ClsNode)n);
     List<ClsNode>list = new ArrayList<>();
     list.addAll(duClassStream().collect(Collectors.toList()));
     duPackageStream().forEach(n->list.addAll(
-      n.classStream(true).collect(Collectors.toList())
+      n.childClasses(true).collect(Collectors.toList())
     ));
+    return list.stream();
+  }
+  
+  @Override
+  public Stream<PkgNode>childPackages(boolean descend) {
+    if (!descend) return this.duPackageStream().map(n->(PkgNode)n);
+    List<PkgNode>list = new ArrayList<>();
+    this.visitPackages(VisitOrder.PRE, n-> {
+      if (n == PkgNodeImpl.this) return;
+      list.add(n);
+    });
     return list.stream();
   }
 
@@ -328,7 +339,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
    */
   @Override
   public int childClassCount(boolean descend) {
-    return (int)classStream(descend).count();
+    return (int)childClasses(descend).count();
   }
 
   /**

@@ -3,8 +3,6 @@ package com.cm55.depDetect;
 import java.util.function.*;
 import java.util.stream.*;
 
-import com.cm55.depDetect.impl.*;
-
 /**
  * パッケージノード
  * @author ysugimura
@@ -45,8 +43,15 @@ public interface PkgNode extends JavaNode {
    * descend=falseのときはパッケージ直下のクラスのみ、trueのときは祖先のクラスまでリストされる。
    * 名前順にソートされている。
    */
-  public Stream<ClsNode>classStream(boolean descend);
-      
+  public Stream<ClsNode>childClasses(boolean descend);
+
+  /**
+   * 
+   * @param descend
+   * @return
+   */
+  public Stream<PkgNode>childPackages(boolean descend);
+  
   /**
    * descend=falseのときは、このノード直下のノード数を返す。このパッケージノードは含まない。
    * trueのときは、このノード以下すべてのノード数を返す。
@@ -68,6 +73,7 @@ public interface PkgNode extends JavaNode {
    * @return
    */
   public int childPackageCount(boolean descend);
+
   
   /** 
    * 指定パッケージあるいはクラスを最長一致で取得する。

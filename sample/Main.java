@@ -26,7 +26,7 @@ public class Main {
       System.out.println("\n循環依存発生パッケージ:" + pkg);
       cyclics.stream().forEach(cyc-> {
         System.out.println(" 依存先パッケージ：" + cyc);
-        pkg.classStream(true).forEach(cls-> {
+        pkg.childClasses(true).forEach(cls-> {
           if (cls.getDepsTo().contains(cyc)) {
             System.out.println("  原因クラス:" + cls);
           }

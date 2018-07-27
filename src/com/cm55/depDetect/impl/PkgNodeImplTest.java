@@ -37,7 +37,7 @@ public class PkgNodeImplTest {
      *       +- test
      *       |  +- Sample
      *       +- Foo1
-     *       +- FOo2  
+     *       +- Foo2  
      */
     root = PkgNodeImpl.createRoot();
     com = root.ensurePackage("com");
@@ -53,16 +53,32 @@ public class PkgNodeImplTest {
     
     test = cm55.ensurePackage("test");
     sample = test.createClass("Sample",  null);    
+    
+    // Bar1->Foo1
+    // Bar1->Sample
+    // Foo2->Bar2
+    
+    
+    
+  }
+  
+  @Test
+  public void childPackages() {
+    String s = com.childPackages(false).map(n->n.getPath()).collect(Collectors.joining(","));
+    System.out.println("" + s);
+    assertThat(s, equalTo("com.cm55"));
+    s = com.childPackages(true).map(n->n.getPath()).collect(Collectors.joining(","));
+    System.out.println("" + s);
   }
 
   @Test
   public void stream() {        
     assertThat(
-      cm55.classStream(false).map(n->n.getPath()).collect(Collectors.joining(",")),
+      cm55.childClasses(false).map(n->n.getPath()).collect(Collectors.joining(",")),
       equalTo("com.cm55.Foo1,com.cm55.Foo2")
     );
     //ystem.out.println(cm55.classStream(true).map(n->n.getPath()).collect(Collectors.joining(",")));
-    assertThat(cm55.classStream(true).map(n->n.getPath()).collect(Collectors.joining(",")),
+    assertThat(cm55.childClasses(true).map(n->n.getPath()).collect(Collectors.joining(",")),
       equalTo("com.cm55.Foo1,com.cm55.Foo2," + 
           "com.cm55.depDetect.Bar1,com.cm55.depDetect.Bar2,com.cm55.test.Sample")
    );    
