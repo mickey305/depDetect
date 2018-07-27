@@ -94,19 +94,9 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     }
     throw new IllegalStateException(node.getPath() + " is already registered");
   }
-
-  /** {@inheritDoc} */
-  @Override
-  public Stream<JavaNode>nodeStream(boolean descend) {
-    return _nodeStream(descend).map(n->(JavaNode)n);
-  }
   
-  private Stream<JavaNodeImpl>_nodeStream(boolean descend) {
-    if (!descend)
-      return nodeMap.values().stream().sorted();
-    List<JavaNodeImpl>nodes = new ArrayList<>();
-    visit(VisitOrder.PRE, n->nodes.add((JavaNodeImpl)n));
-    return nodes.stream();
+  private Stream<JavaNodeImpl>_nodeStream() {
+    return nodeMap.values().stream().sorted();
   }
   
   /** {@inheritDoc} */
@@ -124,19 +114,9 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     return nodes.stream();
   }
   
-  /** {@inheritDoc} */
-  @Override
-  public Stream<PkgNode>packageStream(boolean descend) {
-    return _packageStream(descend).map(n->(PkgNode)n);
-  }
-  
-  private Stream<PkgNodeImpl>_packageStream(boolean descend) {
-    if (!descend)
+  private Stream<PkgNodeImpl>_packageStream() {
       return nodeMap.values().stream()
         .filter(node->node instanceof PkgNodeImpl).map(n->(PkgNodeImpl)n).sorted();
-    List<PkgNodeImpl>nodes = new ArrayList<>();
-    this.visitPackages(VisitOrder.PRE, n->nodes.add((PkgNodeImpl)n));
-    return nodes.stream();
   }
   
   /** このパッケージノード以下のすべてをツリー構造として文字列化する。デバッグ用 */
@@ -145,7 +125,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     StringBuilder s = new StringBuilder();
     new Object() {
       void printChild(PkgNodeImpl node, String childIndent) {
-        node._nodeStream(false).forEach(child-> {
+        node._nodeStream().forEach(child-> {
           s.append(childIndent + child.name + "\n");
           if (child instanceof PkgNode) 
             printChild((PkgNodeImpl)child, childIndent + " ");
@@ -220,7 +200,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     depsTo.stream().forEach(to->((PkgNodeImpl)to).depsFrom.add(this));    
     
     // 下位のパッケージノードを処理
-    this._packageStream(false).forEach(child->child.buildRefs());
+    this._packageStream().forEach(child->child.buildRefs());
   }
   
   /** 
@@ -234,7 +214,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     cyclics = depsTo.getIntersect(depsFrom);
     
     // 下位のパッケージノードを処理
-    _packageStream(false).forEach(pkg->pkg.buildCyclics());
+    _packageStream().forEach(pkg->pkg.buildCyclics());
   }
 
   /** 
@@ -246,7 +226,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     if (!descend) return unknowns;
     UnknownsImpl impl = new UnknownsImpl();
     impl.add(unknowns);
-    _packageStream(false).forEach(child->impl.add(child.getUnknowns(true)));
+    _packageStream().forEach(child->impl.add(child.getUnknowns(true)));
     return impl;
   }
   
@@ -267,7 +247,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   RefsImpl getDepsToDescend() {
     RefsImpl impl = new RefsImpl();
     impl.add(depsTo);
-    this._packageStream(false).forEach(child->impl.add(child.getDepsToDescend()));
+    this._packageStream().forEach(child->impl.add(child.getDepsToDescend()));
     return impl;
   }
 
@@ -288,7 +268,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   RefsImpl getDepsFromDescend() {
     RefsImpl impl = new RefsImpl();
     impl.add(depsFrom);
-    _packageStream(false).forEach(child->impl.add(child.getDepsFromDescend()));
+    _packageStream().forEach(child->impl.add(child.getDepsFromDescend()));
     return impl;
   }
   
@@ -308,7 +288,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   RefsImpl getCyclicsDescend() {
     RefsImpl impl = new RefsImpl();
     impl.add(cyclics);
-    _packageStream(false).forEach(child->impl.add(child.getCyclicsDescend()));
+    _packageStream().forEach(child->impl.add(child.getCyclicsDescend()));
     return impl;
   }
 
@@ -317,19 +297,11 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   @Override
   public void visit(VisitOrder order, Consumer<JavaNode> visitor) {
     if (order == VisitOrder.PRE) visitor.accept(this);
-    nodeStream(false).forEach(child-> {
+    _nodeStream().forEach(child-> {
       if (child instanceof PkgNodeImpl) ((PkgNodeImpl)child).visit(order, visitor);
       else visitor.accept(child);
     });
     if (order == VisitOrder.POST) visitor.accept(this); 
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public Stream<JavaNode>visitStream(VisitOrder order) {
-    List<JavaNode>nodes = new ArrayList<>();
-    visit(order, n->nodes.add(n));
-    return nodes.stream();
   }
 
   /** このノード以下のすべてのパッケージノードを訪問する */
@@ -344,32 +316,47 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   /** このノード以下のすべてのクラスノードを訪問する */
   @Override
   public void visitClasses(Consumer<ClsNode>visitor) {    
-    visit(null, n-> {
+    visit(VisitOrder.PRE, n-> {
       if (n instanceof ClsNode) visitor.accept((ClsNode)n);
     });
   }
-  
-  /** {@inheritDoc} */
+
+  /**
+   * descend=falseのときは、このノード直下のノード数を返す。このパッケージノードは含まない。
+   * trueのときは、このノード以下すべてのノード数を返す。
+   * @param descend
+   * @return
+   */
   @Override
-  public Stream<ClsNode>visitClassesStream() {
-    List<ClsNode>nodes = new ArrayList<>();
-    visitClasses(n->nodes.add(n));
-    return nodes.stream();
+  public int childNodeCount(boolean descend) {
+    int[]count =  new int[] { (int)this._nodeStream().count() };
+    if (!descend) return count[0];
+    this._packageStream().forEach(n->count[0] += n.childNodeCount(true));
+    return count[0];
   }
 
+  /**
+   * descend=falseのときは、このノード直下のクラス数を返す。
+   * trueのときは、このノード以下のすべてのクラス数を返す。
+   * @return
+   */
   @Override
-  public int nodeCount(boolean descend) {
-    return (int)nodeStream(descend).count();
+  public int childClassCount(boolean descend) {
+    return (int)classStream(descend).count();
+
   }
 
+  /**
+   * descend=falseのときは、このノード直下のパッケージノード数を返す。このパッケージノードは含まない。
+   * trueのときは、このノード以下すべてのパッケージノード数を返す。
+   * @return
+   */
   @Override
-  public int classCount(boolean descend) {
-    return (int)classStream(descend).filter(n->n instanceof ClsNode).count();
-  }
-
-  @Override
-  public int packageCount(boolean descend) {
-    return (int)packageStream(descend).filter(n->n instanceof PkgNode).count();
+  public int childPackageCount(boolean descend) {
+    int[]count = new int[] { (int)this._packageStream().count() };
+    if(!descend) return count[0];
+    this._packageStream().forEach(n->count[0] += n.childPackageCount(true));
+    return count[0];
   }
   
   /**

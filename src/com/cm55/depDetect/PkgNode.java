@@ -40,40 +40,33 @@ public interface PkgNode extends JavaNode {
    */
   public Refs getCyclics(boolean descend);
 
+  
   /** 
-   * このパッケージ直下のすべてのノードを返す。
-   * パッケージノード、クラスノードが混在する。パッケージが先、クラスが後で、それぞれ名前順にソートされている。
-   * {@link JavaNodeImpl#compareTo(JavaNodeImpl)}を参照のこと。
+   * このパッケージ直下のすべてのクラスノードのストリームを返す。名前順にソートされている。
    */
-  public Stream<JavaNode>nodeStream(boolean descend);
-  
-  /** このパッケージ直下のすべてのクラスノードのストリームを返す。名前順にソートされている */
   public Stream<ClsNode>classStream(boolean descend);
-  
-  /** このパッケージ直下のすべてのパッケージノードのストリームを返す。名前順にソートされている */
-  public Stream<PkgNode>packageStream(boolean descend);
-    
+      
   /**
-   * descend=falseのときは、このノード直下のノード数を返す。
+   * descend=falseのときは、このノード直下のノード数を返す。このパッケージノードは含まない。
    * trueのときは、このノード以下すべてのノード数を返す。
    * @param descend
    * @return
    */
-  public int nodeCount(boolean descend);
+  public int childNodeCount(boolean descend);
   
   /**
    * descend=falseのときは、このノード直下のクラス数を返す。
    * trueのときは、このノード以下のすべてのクラス数を返す。
    * @return
    */
-  public int classCount(boolean descend);
+  public int childClassCount(boolean descend);
   
   /**
-   * descend=falseのときは、このノード直下のパッケージノード数を返す。
+   * descend=falseのときは、このノード直下のパッケージノード数を返す。このパッケージノードは含まない。
    * trueのときは、このノード以下すべてのパッケージノード数を返す。
    * @return
    */
-  public int packageCount(boolean descend);
+  public int childPackageCount(boolean descend);
   
   /** 
    * 指定パッケージあるいはクラスを最長一致で取得する。
@@ -99,17 +92,14 @@ public interface PkgNode extends JavaNode {
   public JavaNode findExact(String path);
   
   /** 
-   * このノード以下のノードをすべて訪問する 
+   * このノード以下のノードをすべて訪問する 。このパッケージノードも含む。
    * @param order 木構造探索順序
    * @param visitor 訪問時コールバック
    */
   public void visit(VisitOrder order, Consumer<JavaNode> visitor);
-
-  /** {@link #visit(VisitOrder, Consumer)}の訪問結果のストリームを取得する */
-  public Stream<JavaNode>visitStream(VisitOrder order);
   
   /** 
-   * このノード以下のすべてのパッケージノードを訪問する
+   * このノード以下のすべてのパッケージノードを訪問する。このパッケージノードも含む。
    * @param order 木構造探索順序
    * @param visitor 訪問時コールバック
    */
@@ -120,9 +110,6 @@ public interface PkgNode extends JavaNode {
    * @param visitor 訪問時コールバック
    */
   public void visitClasses(Consumer<ClsNode>visitor);
-
-  /** {@link #visitClasses(Consumer)}の訪問結果ストリームを取得する */
-  public Stream<ClsNode>visitClassesStream();
   
   /** 木構造文字列を取得する */
   public String treeString();
