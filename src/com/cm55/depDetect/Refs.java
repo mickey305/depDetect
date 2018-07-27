@@ -22,11 +22,17 @@ public interface Refs {
 
   /** 
    * 指定された{@link PkgNode}を含むかを返す
+   * 例えば、a.b, a.c, a.dがあり、a.cが指定された場合はtrueとなる。
    * @param node
    * @return
    */
   public boolean contains(PkgNode node);
 
+  /** 
+   * このパッケージ集合の中に、指定されたパッケージか、あるいは指定パッケージの下のパッケージが含まれるかを調べる
+   * 例えば、a.b, a.c, a.dがあり、aが指定された場合にはtrueとなる。
+   */
+  public boolean containsUnder(PkgNode node);
 
   /** 指定された{@link Refs}の共通部分を取得する */
   public Refs getIntersect(Refs that);

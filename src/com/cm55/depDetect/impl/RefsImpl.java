@@ -46,6 +46,11 @@ public class RefsImpl implements Refs {
     return set.contains(node);
   }
   
+  @Override
+  public boolean containsUnder(PkgNode node) {
+    return stream().filter(n->node.isAscendOf(n)).findAny().orElse(null) != null;
+  }
+  
   /** 全パッケージを名前順で取得する */
   @Override
   public Stream<PkgNode>stream() {
