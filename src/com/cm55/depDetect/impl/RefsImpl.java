@@ -13,7 +13,7 @@ public class RefsImpl implements Refs {
 
   /** パッケージ集合 */
   final Set<PkgNodeImpl>set;
-
+  
   /** 集合を指定する */
   private RefsImpl(Set<PkgNodeImpl>set) {
     this.set = set;
@@ -68,7 +68,7 @@ public class RefsImpl implements Refs {
   /** デバッグ用文字列化 */
   @Override
   public String toString() {
-    return set.stream().map(n->n.toString()).sorted().collect(Collectors.joining("\n"));
+    return set.stream().map(n->n.toString()).sorted().collect(Collectors.joining(","));
   }
 
   /** 共通部分があるかを調べる */

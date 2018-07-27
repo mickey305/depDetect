@@ -6,10 +6,6 @@ import static org.junit.Assert.*;
 import java.util.stream.*;
 
 import org.junit.*;
-import static org.junit.Assert.*;
-import static org.hamcrest.Matchers.*;
-
-import com.cm55.depDetect.*;
 
 
 public class PkgNodeImplTest {
