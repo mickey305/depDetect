@@ -18,6 +18,7 @@ public class PkgNodeImplTest {
   PkgNodeImpl com;
   PkgNodeImpl cm55;
   PkgNodeImpl depDetect;
+  PkgNodeImpl test;
   ClsNodeImpl foo1;
   ClsNodeImpl foo2;
   ClsNodeImpl bar1;
@@ -26,27 +27,57 @@ public class PkgNodeImplTest {
   
   @Before
   public void before() {
+    /**
+     * ""
+     * +- com
+     *    +- cm55
+     *       +- depDetect
+     *       |  +- Bar1
+     *       |  +- Bar2
+     *       +- test
+     *       |  +- Sample
+     *       +- Foo1
+     *       +- FOo2  
+     */
     root = PkgNodeImpl.createRoot();
     com = root.ensurePackage("com");
     cm55 = com.ensurePackage("cm55");
+    
     foo1 = cm55.createClass("Foo1",  null);
     foo2 = cm55.createClass("Foo2",  null);
-    depDetect = cm55.ensurePackage("depDetect");
+    
+    depDetect = cm55.ensurePackage("depDetect");    
+    
     bar1 = depDetect.createClass("Bar1",  null);
     bar2 = depDetect.createClass("Bar2",  null);
-    sample = depDetect.createClass("Sample",  null);
+    
+    test = cm55.ensurePackage("test");
+    sample = test.createClass("Sample",  null);    
+  }
+
+  @Test
+  public void stream() {        
+    assertThat(
+      cm55.classStream(false).map(n->n.getPath()).collect(Collectors.joining(",")),
+      equalTo("com.cm55.Foo1,com.cm55.Foo2")
+    );
+    //ystem.out.println(cm55.classStream(true).map(n->n.getPath()).collect(Collectors.joining(",")));
+    assertThat(cm55.classStream(true).map(n->n.getPath()).collect(Collectors.joining(",")),
+      equalTo("com.cm55.Foo1,com.cm55.Foo2," + 
+          "com.cm55.depDetect.Bar1,com.cm55.depDetect.Bar2,com.cm55.test.Sample")
+   );    
   }
   
   @Test
   public void findMaximum() {        
     assertThat(root.findMaximum("com.cm55.depDetect"), equalTo(depDetect));   
-    assertThat(root.findMaximum("com.cm55.test"), equalTo(cm55)); 
+    assertThat(root.findMaximum("com.cm55.tttt"), equalTo(cm55)); 
   }
   
   @Test
   public void count() {
     assertThat(root.childNodeCount(false), equalTo(1));
-    assertThat(root.childNodeCount(true), equalTo(8));
+    assertThat(root.childNodeCount(true), equalTo(9));
     
     assertThat(root.childClassCount(false), equalTo(0));
     assertThat(root.childClassCount(true), equalTo(5));
@@ -54,19 +85,9 @@ public class PkgNodeImplTest {
     assertThat(cm55.childClassCount(true), equalTo(5));
     
     assertThat(root.childPackageCount(false), equalTo(1));
-    assertThat(root.childPackageCount(true), equalTo(3));
+    assertThat(root.childPackageCount(true), equalTo(4));
   }
-  
-  @Test
-  public void stream() {
-    assertThat(
-      cm55.classStream(false).map(n->n.getPath()).collect(Collectors.joining(",")),
-      equalTo("com.cm55.Foo1,com.cm55.Foo2")
-    );
-    String s = cm55.classStream(true).map(n->n.getPath()).collect(Collectors.joining(","));
-    
-    System.out.println(s);
-  }
+
   
   @Test
   public void visitPackages() {

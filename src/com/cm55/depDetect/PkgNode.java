@@ -39,10 +39,11 @@ public interface PkgNode extends JavaNode {
    * @return 循環依存集合
    */
   public Refs getCyclics(boolean descend);
-
   
   /** 
-   * このパッケージ直下のすべてのクラスノードのストリームを返す。名前順にソートされている。
+   * このパッケージ下のすべてのクラスノードのストリームを返す。
+   * descend=falseのときはパッケージ直下のクラスのみ、trueのときは祖先のクラスまでリストされる。
+   * 名前順にソートされている。
    */
   public Stream<ClsNode>classStream(boolean descend);
       
@@ -104,12 +105,7 @@ public interface PkgNode extends JavaNode {
    * @param visitor 訪問時コールバック
    */
   public void visitPackages(VisitOrder order, Consumer<PkgNode>visitor);
-    
-  /** 
-   * このノード以下のすべてのクラスノードを訪問する
-   * @param visitor 訪問時コールバック
-   */
-  public void visitClasses(Consumer<ClsNode>visitor);
+
   
   /** 木構造文字列を取得する */
   public String treeString();

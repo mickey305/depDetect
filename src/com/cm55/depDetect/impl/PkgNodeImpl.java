@@ -95,29 +95,19 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     throw new IllegalStateException(node.getPath() + " is already registered");
   }
   
-  private Stream<JavaNodeImpl>_nodeStream() {
-    return nodeMap.values().stream().sorted();
-  }
   
   /** {@inheritDoc} */
   @Override
   public Stream<ClsNode>classStream(boolean descend) {
-    return _classStream(descend).map(n->(ClsNode)n);
+    if (!descend) return duClassStream().map(n->(ClsNode)n);
+    List<ClsNode>list = new ArrayList<>();
+    list.addAll(duClassStream().collect(Collectors.toList()));
+    duPackageStream().forEach(n->list.addAll(
+      n.classStream(true).collect(Collectors.toList())
+    ));
+    return list.stream();
   }
 
-  private Stream<ClsNodeImpl>_classStream(boolean descend) {
-    if (!descend)
-      return nodeMap.values().stream()
-        .filter(node->node instanceof ClsNodeImpl).map(n->(ClsNodeImpl)n).sorted();
-    List<ClsNodeImpl>nodes = new ArrayList<>();
-    this.visitClasses(n->nodes.add((ClsNodeImpl)n));
-    return nodes.stream();
-  }
-  
-  private Stream<PkgNodeImpl>_packageStream() {
-      return nodeMap.values().stream()
-        .filter(node->node instanceof PkgNodeImpl).map(n->(PkgNodeImpl)n).sorted();
-  }
   
   /** このパッケージノード以下のすべてをツリー構造として文字列化する。デバッグ用 */
   @Override
@@ -125,7 +115,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     StringBuilder s = new StringBuilder();
     new Object() {
       void printChild(PkgNodeImpl node, String childIndent) {
-        node._nodeStream().forEach(child-> {
+        node.duNodeStream().forEach(child-> {
           s.append(childIndent + child.name + "\n");
           if (child instanceof PkgNode) 
             printChild((PkgNodeImpl)child, childIndent + " ");
@@ -190,7 +180,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     unknowns = new UnknownsImpl();
     
     // このパッケージ下のクラスの依存を取得する
-    _classStream(false).forEach(clsNode-> {
+    duClassStream().forEach(clsNode-> {
       ClsDeps clsDeps = clsNode.buildDeps();
       depsTo.add(clsDeps.depends);
       unknowns.add(clsDeps.unknowns);
@@ -200,7 +190,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     depsTo.stream().forEach(to->((PkgNodeImpl)to).depsFrom.add(this));    
     
     // 下位のパッケージノードを処理
-    this._packageStream().forEach(child->child.buildRefs());
+    this.duPackageStream().forEach(child->child.buildRefs());
   }
   
   /** 
@@ -214,7 +204,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     cyclics = depsTo.getIntersect(depsFrom);
     
     // 下位のパッケージノードを処理
-    _packageStream().forEach(pkg->pkg.buildCyclics());
+    duPackageStream().forEach(pkg->pkg.buildCyclics());
   }
 
   /** 
@@ -226,7 +216,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     if (!descend) return unknowns;
     UnknownsImpl impl = new UnknownsImpl();
     impl.add(unknowns);
-    _packageStream().forEach(child->impl.add(child.getUnknowns(true)));
+    duPackageStream().forEach(child->impl.add(child.getUnknowns(true)));
     return impl;
   }
   
@@ -247,7 +237,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   RefsImpl getDepsToDescend() {
     RefsImpl impl = new RefsImpl();
     impl.add(depsTo);
-    this._packageStream().forEach(child->impl.add(child.getDepsToDescend()));
+    this.duPackageStream().forEach(child->impl.add(child.getDepsToDescend()));
     return impl;
   }
 
@@ -268,7 +258,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   RefsImpl getDepsFromDescend() {
     RefsImpl impl = new RefsImpl();
     impl.add(depsFrom);
-    _packageStream().forEach(child->impl.add(child.getDepsFromDescend()));
+    duPackageStream().forEach(child->impl.add(child.getDepsFromDescend()));
     return impl;
   }
   
@@ -285,10 +275,15 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     return refs;
   }
   
+  /**
+   * このパッケージ以下の循環依存パッケージ集合を取得する。このパッケージ以下のサブツリーのパッケージも含む。
+   * 内部的な循環依存は除去されていない
+   * @return
+   */
   RefsImpl getCyclicsDescend() {
     RefsImpl impl = new RefsImpl();
     impl.add(cyclics);
-    _packageStream().forEach(child->impl.add(child.getCyclicsDescend()));
+    duPackageStream().forEach(child->impl.add(child.getCyclicsDescend()));
     return impl;
   }
 
@@ -297,7 +292,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   @Override
   public void visit(VisitOrder order, Consumer<JavaNode> visitor) {
     if (order == VisitOrder.PRE) visitor.accept(this);
-    _nodeStream().forEach(child-> {
+    duNodeStream().forEach(child-> {
       if (child instanceof PkgNodeImpl) ((PkgNodeImpl)child).visit(order, visitor);
       else visitor.accept(child);
     });
@@ -312,15 +307,6 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     });
   }
 
-
-  /** このノード以下のすべてのクラスノードを訪問する */
-  @Override
-  public void visitClasses(Consumer<ClsNode>visitor) {    
-    visit(VisitOrder.PRE, n-> {
-      if (n instanceof ClsNode) visitor.accept((ClsNode)n);
-    });
-  }
-
   /**
    * descend=falseのときは、このノード直下のノード数を返す。このパッケージノードは含まない。
    * trueのときは、このノード以下すべてのノード数を返す。
@@ -329,9 +315,9 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
    */
   @Override
   public int childNodeCount(boolean descend) {
-    int[]count =  new int[] { (int)this._nodeStream().count() };
+    int[]count =  new int[] { (int)this.duNodeStream().count() };
     if (!descend) return count[0];
-    this._packageStream().forEach(n->count[0] += n.childNodeCount(true));
+    this.duPackageStream().forEach(n->count[0] += n.childNodeCount(true));
     return count[0];
   }
 
@@ -343,7 +329,6 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   @Override
   public int childClassCount(boolean descend) {
     return (int)classStream(descend).count();
-
   }
 
   /**
@@ -353,9 +338,9 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
    */
   @Override
   public int childPackageCount(boolean descend) {
-    int[]count = new int[] { (int)this._packageStream().count() };
+    int[]count = new int[] { (int)this.duPackageStream().count() };
     if(!descend) return count[0];
-    this._packageStream().forEach(n->count[0] += n.childPackageCount(true));
+    this.duPackageStream().forEach(n->count[0] += n.childPackageCount(true));
     return count[0];
   }
   
@@ -369,5 +354,34 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
       node = node.getParent();
     }
     return false;
+  }
+  
+  /** 
+   * このパッケージノード直下のすべてのノードのストリームを返す
+   * パッケージノードが先、クラスノードが後で、それぞれ名前順になっている。
+   * @return
+   */
+  private Stream<JavaNodeImpl>duNodeStream() {
+    return nodeMap.values().stream().sorted();
+  }
+  
+  /** 
+   * このパッケージノード直下のすべてのクラスノードのストリームを返す
+   * 名前順になっている。
+   * @return
+   */
+  private Stream<ClsNodeImpl>duClassStream() {
+    return nodeMap.values().stream()
+        .filter(n->n instanceof ClsNodeImpl).map(n->(ClsNodeImpl)n).sorted();
+  }
+  
+  /** 
+   * このパッケージノード直下のすべてのパッケージノードのストリームを返す
+   * 名前順になっている。
+   * @return
+   */
+  private Stream<PkgNodeImpl>duPackageStream() {
+      return nodeMap.values().stream()
+        .filter(node->node instanceof PkgNodeImpl).map(n->(PkgNodeImpl)n).sorted();
   }
 }
