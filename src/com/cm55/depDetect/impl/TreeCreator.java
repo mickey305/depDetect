@@ -39,10 +39,6 @@ public class TreeCreator {
     // まずすべてのクラスの依存パッケージ集合を得てから、それぞれのパッケージの依存パッケージ集合を得る
     root.buildRefs();
     
-    // 循環依存をビルドする
-    // あるパッケージの依存するパッケージから逆方向の依存があれば循環依存としてマークする
-    root.buildCyclics();
-    
     return root;
   }
   

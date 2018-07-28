@@ -27,9 +27,6 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   
   /** このパッケージノードが依存されているパッケージノードの集合 */
   private RefsImpl depsFrom = new RefsImpl();
-
-  /** 循環依存パッケージノード。依存であり、被依存のパッケージノード */
-  private RefsImpl cyclics;
   
   /** ルートパッケージノードを作成する。特殊な用途 */
   static PkgNodeImpl createRoot() {
@@ -203,20 +200,6 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     // 下位のパッケージノードを処理
     this.duPackageStream().forEach(child->child.buildRefs());
   }
-  
-  /** 
-   * 循環参照ノード集合を作成する
-   * {@link Refs}にある全パッケージについて、こちら側を参照しているものがあれば
-   * それを{@link Refs}オブジェクトとしてまとめる
-   */
-  public void buildCyclics() {
-    
-    // 依存先と被依存元の共通部分を取得する
-    cyclics = depsTo.getIntersect(depsFrom);
-    
-    // 下位のパッケージノードを処理
-    duPackageStream().forEach(pkg->pkg.buildCyclics());
-  }
 
   /** 
    * このパッケージの不明import集合を取得する。
@@ -280,22 +263,10 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
    */
   @Override
   public RefsImpl getCyclics(boolean descend) {  
-    if (!descend) return cyclics;
-    RefsImpl refs = getCyclicsDescend();
-    refs.removeDescend(this);
-    return refs;
-  }
-  
-  /**
-   * このパッケージ以下の循環依存パッケージ集合を取得する。このパッケージ以下のサブツリーのパッケージも含む。
-   * 内部的な循環依存は除去されていない
-   * @return
-   */
-  RefsImpl getCyclicsDescend() {
-    RefsImpl impl = new RefsImpl();
-    impl.add(cyclics);
-    duPackageStream().forEach(child->impl.add(child.getCyclicsDescend()));
-    return impl;
+    if (!descend) {
+      return depsTo.getIntersect(depsFrom);
+    }
+    return getDepsTo(descend).getIntersect(getDepsFrom(descend));
   }
 
   
