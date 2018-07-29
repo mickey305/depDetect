@@ -53,9 +53,11 @@ public class SrcTreeCreator {
           }
           if (!childName.endsWith(".java")) continue;
           String javaClass = childName.substring(0, childName.length() - 5);
-          if (pkg.createChildClass(javaClass, SrcImportExtractor.extract(child)) == null) {
+          ClsNodeImpl cls = pkg.createChildClass(javaClass);
+          if (cls== null) {
             throw new IllegalStateException("duplicated class " + path);
           }
+          cls.imports = SrcImportExtractor.extract(child);          
         };
       }
     }.processChild(root, top);

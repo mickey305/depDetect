@@ -82,10 +82,10 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
    * @param imports
    * @return
    */
-  ClsNodeImpl createChildClass(String name, Imports imports) {
+  ClsNodeImpl createChildClass(String name) {
     JavaNodeImpl node = nodeMap.get(name);
     if (node == null) {
-      node = new ClsNodeImpl(this, name, imports);
+      node = new ClsNodeImpl(this, name);
       nodeMap.put(name,  node);
       return (ClsNodeImpl)node;      
     }
@@ -101,7 +101,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     JavaNodeImpl node = nodeMap.get(name);
     if (node instanceof ClsNodeImpl) return (ClsNodeImpl)node;
     if (node == null) {
-      node = new ClsNodeImpl(this, name, null);
+      node = new ClsNodeImpl(this, name);
       nodeMap.put(name,  node);
       return (ClsNodeImpl)node;      
     } 

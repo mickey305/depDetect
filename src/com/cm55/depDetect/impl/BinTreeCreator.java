@@ -52,19 +52,19 @@ public class BinTreeCreator {
         
         // 同じパッケージの場合は無視する
         if (from.pkg.equals(to.pkg)) continue; 
-        /*
-        if (m.group(3).equals("default"))
-        System.out.println(m.group(1) + "," + m.group(2) + "," + m.group(3));
-        */
-        System.out.println(from + " " + to.pkg);
         
         // 参照元パッケージを取得する
         PkgNodeImpl pkg = ensurePackage(root, from.pkg);
-        System.out.println(pkg.getPath());
         
         // クラスを取得する
         ClsNodeImpl cls = pkg.ensureChildClass(from.cls);
         
+        // importを追加する
+        if (cls.imports == null) {
+          VarImports imports = new VarImports();
+          cls.imports = imports;
+        }
+        ((VarImports)cls.imports).add(to.pkg);
       }
       return null;
     });
@@ -118,23 +118,5 @@ public class BinTreeCreator {
     }
   }
   
-  static void create(PkgNodeImpl root, Path top) throws IOException {
-    new Object() {
-      void processChild(PkgNodeImpl pkg, Path path) throws IOException {
-        for (Path child: Files.list(path).collect(Collectors.toList())) {   
-          String childName = child.getName(child.getNameCount() - 1).toString();
-          if (Files.isDirectory(child)) {
-            processChild(pkg.ensureChildPackage(childName), child);
-            continue;
-          }
-          if (!childName.endsWith(".java")) continue;
-          String javaClass = childName.substring(0, childName.length() - 5);
-          if (pkg.createChildClass(javaClass, SrcImportExtractor.extract(child)) == null) {
-            throw new IllegalStateException("duplicated class " + path);
-          }
-        };
-      }
-    }.processChild(root, top);
-  }
 
 }

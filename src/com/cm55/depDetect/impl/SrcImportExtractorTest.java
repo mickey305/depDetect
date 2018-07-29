@@ -9,7 +9,7 @@ public class SrcImportExtractorTest {
 
   @Test
   public void test() throws IOException {
-    Imports imports = SrcImportExtractor.extract(Paths.get("src/com/cm55/depDetect/impl/CommentRemover.java"));
+    BulkImports imports = SrcImportExtractor.extract(Paths.get("src/com/cm55/depDetect/impl/CommentRemover.java"));
     //ystem.out.println(imports);
   }
 

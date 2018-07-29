@@ -12,8 +12,8 @@ import java.util.stream.*;
  */
 public class SrcImportExtractor {
 
-  /** 指定されたJavaソース・ファイルのimport文を全て取得し、{@link Imports}オブジェクトを返す */
-  public static Imports extract(Path path) throws IOException {
+  /** 指定されたJavaソース・ファイルのimport文を全て取得し、{@link BulkImports}オブジェクトを返す */
+  public static BulkImports extract(Path path) throws IOException {
     List<String>lines = 
         Arrays.stream(CommentRemover.remove(path).split("\n"))
           .map(line->line.trim())
@@ -23,7 +23,7 @@ public class SrcImportExtractor {
   }
 
   /** 
-   * Javaソース・ファイルの行リストからimport文を全て取得し、{@link Imports}オブジェクトを返す。
+   * Javaソース・ファイルの行リストからimport文を全て取得し、{@link BulkImports}オブジェクトを返す。
    * ただし、linesは以下の条件を満たすこと。
    * <ul>
    * <li>コメントはすべて除去されている。
@@ -34,9 +34,9 @@ public class SrcImportExtractor {
    * したがって、一行名は必ずpackage文（オプション）となり、その次の行はimport文が連続することになる。
    * </p>
    * @param lines 入力Javaソース行リスト
-   * @return {@link Imports}
+   * @return {@link BulkImports}
    */
-  static Imports extract(List<String>lines) {    
+  static BulkImports extract(List<String>lines) {    
     
     List<Import>importList = new ArrayList<>();
 
@@ -46,7 +46,7 @@ public class SrcImportExtractor {
       String pkgName = getPackage(line);
       if (pkgName == null) {
         Import imp = getImport(line);
-        if (imp == null) return new Imports();
+        if (imp == null) return new BulkImports();
         importList.add(imp);
       }
     }
@@ -58,7 +58,7 @@ public class SrcImportExtractor {
       importList.add(imp);
     }
     
-    return new Imports(importList.toArray(new Import[0]));
+    return new BulkImports(importList.toArray(new Import[0]));
   }
   
   /** package文パターン */
