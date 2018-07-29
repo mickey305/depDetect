@@ -40,6 +40,9 @@ public class BinTreeCreator {
       process.waitFor();
     } catch (InterruptedException ex) {}
     int ret = process.exitValue();    
+    
+    DepsBuilder.buildRefs(root);
+    
     return root;
   }
 
@@ -60,6 +63,7 @@ public class BinTreeCreator {
     PackageClass to = new PackageClass(m.group(2));        
     // これは取得するだけ無意味。"default"は何の意味か不明、java.lang等は"not found"にならない
     //String attr = m.group(3);
+    System.out.println("" + from);
     
     // 同じパッケージの場合は無視する
     if (from.pkg.equals(to.pkg)) return;

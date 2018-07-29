@@ -30,7 +30,8 @@ class BulkImports implements Imports {
   }
   
   /** このimport文配列による依存パッケージ集合を作成する */
-  ClsDeps createDependencies(PkgNodeImpl thisPkg) {
+  @Override
+  public ClsDeps createDependencies(PkgNodeImpl thisPkg) {
     RefsImpl depends = new RefsImpl();
     UnknownsImpl unknowns = new UnknownsImpl();
     stream().forEach(imp-> {

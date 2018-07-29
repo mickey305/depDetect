@@ -10,7 +10,10 @@ public class Main {
     PkgNode root = BinTreeCreator.create(
       null,
       Arrays.stream(new String[] {
-        "C:\\devel\\workspace-neon\\github_depDetect\\bin\\default"
+        "C:\\devel\\workspace-neon\\github_depDetect\\bin\\default",
+        //  "C:\\Users\\admin\\Desktop\\shouhinstaff\\server.jar"
+        //  "C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\bin"
+          "C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\release\\private\\terminal.jar"
         //  "C:\\devel\\workspace-neon\\github_depDetect\\bin\\default\\com\\cm55\\depDetect\\ClsNode.class"
       })
     );
