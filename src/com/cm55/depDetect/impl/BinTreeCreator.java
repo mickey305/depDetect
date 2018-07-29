@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.regex.*;
 import java.util.stream.*;
 
 import com.cm55.depDetect.*;
@@ -14,14 +15,17 @@ import com.cm55.depDetect.*;
  */
 public class BinTreeCreator {
   
+  static Pattern LINE = Pattern.compile("^\\s+([^\\s]+)\\s+->\\s+([^\\s]+)\\s+([^\\s]?.*)$");
   public static PkgNode create(String jdeps, Stream<String>files) throws IOException {
     PkgNodeImpl root = PkgNodeImpl.createRoot();
     
     List<String>cmd = new ArrayList<>();
     if (jdeps == null) cmd.add("jdeps");
     cmd.add("-J-Duser.language=en");
+    cmd.add("-v");
     cmd.addAll(files.collect(Collectors.toList()));
-
+    
+    System.out.println(cmd.stream().collect(Collectors.joining(" ")));
       
     ProcessBuilder builder = new ProcessBuilder(cmd);
     Process process = builder.start();
@@ -32,7 +36,24 @@ public class BinTreeCreator {
       while (true) {
         String line = r.readLine();
         if (line == null) break;
-        System.out.println(line);
+        if (line.indexOf("->") < 0) {        
+          System.out.println("unknown:" + line);
+          continue;
+        }
+        Matcher m = LINE.matcher(line);
+        if (!m.matches()) {
+          System.out.println("unmatched:" + line);
+          continue;
+        }
+        PackageClass from = new PackageClass(m.group(1));
+        PackageClass to = new PackageClass(m.group(2));
+        String attr = m.group(3);
+        if (from.pkg.equals(to.pkg)) continue; 
+        /*
+        if (m.group(3).equals("default"))
+        System.out.println(m.group(1) + "," + m.group(2) + "," + m.group(3));
+        */
+        System.out.println(from + " " + to.pkg + " " + attr);
       }
       return null;
     });
@@ -54,18 +75,40 @@ public class BinTreeCreator {
     return root;
   }
   
+  static class PackageClass {
+    public final String pkg;
+    public final String cls;
+    PackageClass(String name) {
+      String clsName = name;
+      int dot = name.lastIndexOf('.');
+      if (dot < 0) {
+        pkg = "";
+        clsName = name;
+      } else {
+        pkg = name.substring(0, dot);
+        clsName = name.substring(dot + 1);
+      }
+      int doller = clsName.indexOf('$');
+      if (doller < 0) cls = clsName;
+      else cls = clsName.substring(0, doller);
+    }
+    public String toString() {
+      return pkg + "/" + cls;
+    }
+  }
+  
   static void create(PkgNodeImpl root, Path top) throws IOException {
     new Object() {
       void processChild(PkgNodeImpl pkg, Path path) throws IOException {
         for (Path child: Files.list(path).collect(Collectors.toList())) {   
           String childName = child.getName(child.getNameCount() - 1).toString();
           if (Files.isDirectory(child)) {
-            processChild(pkg.ensurePackage(childName), child);
+            processChild(pkg.ensureChildPackage(childName), child);
             continue;
           }
           if (!childName.endsWith(".java")) continue;
           String javaClass = childName.substring(0, childName.length() - 5);
-          if (pkg.createClass(javaClass, SrcImportExtractor.extract(child)) == null) {
+          if (pkg.createChildClass(javaClass, SrcImportExtractor.extract(child)) == null) {
             throw new IllegalStateException("duplicated class " + path);
           }
         };

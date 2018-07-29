@@ -48,12 +48,12 @@ public class SrcTreeCreator {
         for (Path child: Files.list(path).collect(Collectors.toList())) {   
           String childName = child.getName(child.getNameCount() - 1).toString();
           if (Files.isDirectory(child)) {
-            processChild(pkg.ensurePackage(childName), child);
+            processChild(pkg.ensureChildPackage(childName), child);
             continue;
           }
           if (!childName.endsWith(".java")) continue;
           String javaClass = childName.substring(0, childName.length() - 5);
-          if (pkg.createClass(javaClass, SrcImportExtractor.extract(child)) == null) {
+          if (pkg.createChildClass(javaClass, SrcImportExtractor.extract(child)) == null) {
             throw new IllegalStateException("duplicated class " + path);
           }
         };

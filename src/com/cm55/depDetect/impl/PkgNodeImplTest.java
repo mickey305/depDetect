@@ -36,19 +36,19 @@ public class PkgNodeImplTest {
      *       +- Foo2  
      */
     root = PkgNodeImpl.createRoot();
-    com = root.ensurePackage("com");
-    cm55 = com.ensurePackage("cm55");
+    com = root.ensureChildPackage("com");
+    cm55 = com.ensureChildPackage("cm55");
     
-    foo1 = cm55.createClass("Foo1",  null);
-    foo2 = cm55.createClass("Foo2",  null);
+    foo1 = cm55.createChildClass("Foo1",  null);
+    foo2 = cm55.createChildClass("Foo2",  null);
     
-    depDetect = cm55.ensurePackage("depDetect");    
+    depDetect = cm55.ensureChildPackage("depDetect");    
     
-    bar1 = depDetect.createClass("Bar1",  null);
-    bar2 = depDetect.createClass("Bar2",  null);
+    bar1 = depDetect.createChildClass("Bar1",  null);
+    bar2 = depDetect.createChildClass("Bar2",  null);
     
-    test = cm55.ensurePackage("test");
-    sample = test.createClass("Sample",  null);    
+    test = cm55.ensureChildPackage("test");
+    sample = test.createChildClass("Sample",  null);    
     
     // Bar1->Foo1
     // Bar1->Sample
