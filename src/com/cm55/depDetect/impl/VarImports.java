@@ -29,7 +29,7 @@ public class VarImports implements Imports {
       PkgNodeImpl node = (PkgNodeImpl)root.findExact(imp);
       if (node == thisPkg) return;
       if (node != null) depends.add(node);
-      unknowns.add(imp);
+      else unknowns.add(imp);
     });
     return new ClsDeps(depends, unknowns);
   } 
