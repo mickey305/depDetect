@@ -10,7 +10,7 @@ import java.util.stream.*;
  * Javaソースからimport文情報を取得する
  * @author ysugimura
  */
-public class ImportExtractor {
+public class SrcImportExtractor {
 
   /** 指定されたJavaソース・ファイルのimport文を全て取得し、{@link Imports}オブジェクトを返す */
   public static Imports extract(Path path) throws IOException {

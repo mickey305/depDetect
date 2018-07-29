@@ -11,7 +11,7 @@ import com.cm55.depDetect.*;
  * 木構造クリエータ
  * @author ysugimura
  */
-public class TreeCreator {
+public class SrcTreeCreator {
 
   public static PkgNode create(File...paths) throws IOException {
     return create(Arrays.stream(paths).map(path->path.toPath()).collect(Collectors.toList()));
@@ -53,7 +53,7 @@ public class TreeCreator {
           }
           if (!childName.endsWith(".java")) continue;
           String javaClass = childName.substring(0, childName.length() - 5);
-          if (pkg.createClass(javaClass, ImportExtractor.extract(child)) == null) {
+          if (pkg.createClass(javaClass, SrcImportExtractor.extract(child)) == null) {
             throw new IllegalStateException("duplicated class " + path);
           }
         };

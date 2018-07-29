@@ -5,11 +5,11 @@ import java.nio.file.*;
 
 import org.junit.*;
 
-public class ImportExtractorTest {
+public class SrcImportExtractorTest {
 
   @Test
   public void test() throws IOException {
-    Imports imports = ImportExtractor.extract(Paths.get("src/com/cm55/depDetect/impl/CommentRemover.java"));
+    Imports imports = SrcImportExtractor.extract(Paths.get("src/com/cm55/depDetect/impl/CommentRemover.java"));
     //ystem.out.println(imports);
   }
 

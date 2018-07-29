@@ -6,7 +6,7 @@ import com.cm55.depDetect.impl.*;
 public class Main {
   public static void main(String[] args) throws IOException {
     
-    PkgNode root = TreeCreator.create(      
+    PkgNode root = SrcTreeCreator.create(      
       "C:\\devel\\workspace-neon\\github_depDetect\\src"
     );
 

@@ -8,7 +8,7 @@ import org.junit.runners.Suite.*;
 @RunWith(Suite.class)
 @SuiteClasses( { 
   CommentRemoverTest.class,
-  ImportExtractorTest.class,
+  SrcImportExtractorTest.class,
   ImportTest.class,
   PkgNodeImplTest.class,
 })
