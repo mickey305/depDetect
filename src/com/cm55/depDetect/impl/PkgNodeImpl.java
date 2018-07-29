@@ -91,6 +91,22 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     }
     throw new IllegalStateException(node.getPath() + " is already registered");
   }
+
+  /**
+   * このノード直下のクラスを取得する。なければ作成する。
+   * @param name
+   * @return
+   */
+  ClsNodeImpl ensureChildClass(String name) {
+    JavaNodeImpl node = nodeMap.get(name);
+    if (node instanceof ClsNodeImpl) return (ClsNodeImpl)node;
+    if (node == null) {
+      node = new ClsNodeImpl(this, name, null);
+      nodeMap.put(name,  node);
+      return (ClsNodeImpl)node;      
+    } 
+    throw new IllegalStateException(node.getPath() + " is already registered");
+  }
   
   
   /** {@inheritDoc} */

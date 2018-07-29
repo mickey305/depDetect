@@ -46,14 +46,25 @@ public class BinTreeCreator {
           continue;
         }
         PackageClass from = new PackageClass(m.group(1));
-        PackageClass to = new PackageClass(m.group(2));
-        String attr = m.group(3);
+        PackageClass to = new PackageClass(m.group(2));        
+        // これは取得するだけ無意味。"default"は何の意味か不明、java.lang等は"not found"にならない
+        //String attr = m.group(3);
+        
+        // 同じパッケージの場合は無視する
         if (from.pkg.equals(to.pkg)) continue; 
         /*
         if (m.group(3).equals("default"))
         System.out.println(m.group(1) + "," + m.group(2) + "," + m.group(3));
         */
-        System.out.println(from + " " + to.pkg + " " + attr);
+        System.out.println(from + " " + to.pkg);
+        
+        // 参照元パッケージを取得する
+        PkgNodeImpl pkg = ensurePackage(root, from.pkg);
+        System.out.println(pkg.getPath());
+        
+        // クラスを取得する
+        ClsNodeImpl cls = pkg.ensureChildClass(from.cls);
+        
       }
       return null;
     });
@@ -73,6 +84,16 @@ public class BinTreeCreator {
     */
     
     return root;
+  }
+
+  /** "com.cm55.depDetect"といったパッケージ文字列からパッケージノードを取得する */
+  static PkgNodeImpl ensurePackage(PkgNodeImpl root, String pkg) {
+    if (pkg.length() == 0) return root;
+    PkgNodeImpl node = root;
+    for (String element: pkg.split("\\.")) {
+      node = node.ensureChildPackage(element);
+    }
+    return node;
   }
   
   static class PackageClass {
