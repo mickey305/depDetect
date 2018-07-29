@@ -39,16 +39,16 @@ public class PkgNodeImplTest {
     com = root.ensureChildPackage("com");
     cm55 = com.ensureChildPackage("cm55");
     
-    foo1 = cm55.createChildClass("Foo1");
-    foo2 = cm55.createChildClass("Foo2");
+    foo1 = cm55.createChildClass("Foo1", true);
+    foo2 = cm55.createChildClass("Foo2", true);
     
     depDetect = cm55.ensureChildPackage("depDetect");    
     
-    bar1 = depDetect.createChildClass("Bar1");
-    bar2 = depDetect.createChildClass("Bar2");
+    bar1 = depDetect.createChildClass("Bar1", true);
+    bar2 = depDetect.createChildClass("Bar2", true);
     
     test = cm55.ensureChildPackage("test");
-    sample = test.createChildClass("Sample");    
+    sample = test.createChildClass("Sample", true);    
     
     // Bar1->Foo1
     // Bar1->Sample

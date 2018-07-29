@@ -9,13 +9,13 @@ import com.cm55.depDetect.*;
 public class ClsNodeImpl extends JavaNodeImpl implements ClsNode {
  
   /** import文配列 */
-  public Imports imports;
+  Imports imports;
 
   /** このクラスが依存するパッケージノード集合 */
-  private RefsImpl depsTo;
+  RefsImpl depsTo;
 
   /** このクラスが依存する不明import文集合 */
-  private UnknownsImpl unknowns;
+  UnknownsImpl unknowns;
   
   /**
    * 親ノード、クラス名称、import文配列を指定する
@@ -42,15 +42,5 @@ public class ClsNodeImpl extends JavaNodeImpl implements ClsNode {
   public UnknownsImpl getUnknowns() {
     return unknowns;
   }
-  
-  /** 依存を構築し、自身に格納する */
-  ClsDeps buildDeps() {
-    /*
-    ClsDeps clsDeps = imports.createDependencies(this.parent);
-    this.depsTo = clsDeps.depends;
-    this.unknowns = clsDeps.unknowns;
-    return clsDeps;
-    */
-    throw new RuntimeException();
-  }
+
 }

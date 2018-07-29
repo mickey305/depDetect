@@ -37,9 +37,35 @@ public class SrcTreeCreator {
 
     // 依存をビルドする。
     // まずすべてのクラスの依存パッケージ集合を得てから、それぞれのパッケージの依存パッケージ集合を得る
-    root.buildRefs();
+    buildRefs(root);
     
     return root;
+  }
+  
+  static void buildRefs(PkgNodeImpl root) {
+    root.depsTo = new RefsImpl();
+    root.unknowns = new UnknownsImpl();
+    
+    // このパッケージ下のクラスの依存を取得する
+    root.duClassStream().forEach(clsNode-> {
+      ClsDeps clsDeps = buildDeps(clsNode);
+      root.depsTo.add(clsDeps.depends);
+      root.unknowns.add(clsDeps.unknowns);
+    });
+
+    // 依存先のrefsFromを設定
+    root.depsTo.stream().forEach(to->((PkgNodeImpl)to).depsFrom.add(root));    
+    
+    // 下位のパッケージノードを処理
+    root.duPackageStream().forEach(child->buildRefs(child));
+  }
+  
+  static ClsDeps buildDeps(ClsNodeImpl cls) {    
+    ClsDeps clsDeps = ((BulkImports)cls.imports).createDependencies(cls.parent);
+    cls.depsTo = clsDeps.depends;
+    cls.unknowns = clsDeps.unknowns;
+    return clsDeps;
+    
   }
   
   static void create(PkgNodeImpl root, Path top) throws IOException {
@@ -53,7 +79,7 @@ public class SrcTreeCreator {
           }
           if (!childName.endsWith(".java")) continue;
           String javaClass = childName.substring(0, childName.length() - 5);
-          ClsNodeImpl cls = pkg.createChildClass(javaClass);
+          ClsNodeImpl cls = pkg.createChildClass(javaClass, true);
           if (cls== null) {
             throw new IllegalStateException("duplicated class " + path);
           }

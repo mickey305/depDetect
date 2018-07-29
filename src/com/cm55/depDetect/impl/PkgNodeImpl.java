@@ -20,13 +20,13 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   private Map<String, JavaNodeImpl>nodeMap = new HashMap<>();
   
   /** このパッケージノードが依存するパッケージノードの集合 */
-  private RefsImpl depsTo;
+  RefsImpl depsTo;
 
   /** このパッケージノードが依存する不明パッケージノード集合 */
-  private UnknownsImpl unknowns;
+  UnknownsImpl unknowns;
   
   /** このパッケージノードが依存されているパッケージノードの集合 */
-  private RefsImpl depsFrom = new RefsImpl();
+  RefsImpl depsFrom = new RefsImpl();
   
   /** ルートパッケージノードを作成する。特殊な用途 */
   static PkgNodeImpl createRoot() {
@@ -77,37 +77,24 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
   
   /**
    * このパッケージノード下の、指定された名称のクラスを作成する。
-   * 既に存在する場合は例外。作成した場合はその{@link ClsNodeImpl}を返す。
+   * onetimeの場合には重複作成を認めない。既に存在する場合は例外。作成した場合はその{@link ClsNodeImpl}を返す。
+   * onetimeで無い場合には、既にクラスがあればそれを返す。
    * @param name
    * @param imports
    * @return
    */
-  ClsNodeImpl createChildClass(String name) {
+  ClsNodeImpl createChildClass(String name, boolean onetime) {
     JavaNodeImpl node = nodeMap.get(name);
     if (node == null) {
       node = new ClsNodeImpl(this, name);
       nodeMap.put(name,  node);
       return (ClsNodeImpl)node;      
     }
-    throw new IllegalStateException(node.getPath() + " is already registered");
-  }
-
-  /**
-   * このノード直下のクラスを取得する。なければ作成する。
-   * @param name
-   * @return
-   */
-  ClsNodeImpl ensureChildClass(String name) {
-    JavaNodeImpl node = nodeMap.get(name);
-    if (node instanceof ClsNodeImpl) return (ClsNodeImpl)node;
-    if (node == null) {
-      node = new ClsNodeImpl(this, name);
-      nodeMap.put(name,  node);
-      return (ClsNodeImpl)node;      
-    } 
-    throw new IllegalStateException(node.getPath() + " is already registered");
-  }
-  
+    if (!onetime) {
+      if (node instanceof ClsNodeImpl) return (ClsNodeImpl)node;
+    }    
+    throw new IllegalStateException(node.getPath() + " is already registered");    
+  }  
   
   /** {@inheritDoc} */
   @Override
@@ -198,25 +185,6 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
     return ((PkgNodeImpl)node).find(path.substring(dotPosition + 1), exactMode);
   }
   
-  /** このパッケージノードの依存セットを作成する */
-  public void buildRefs() {
-    depsTo = new RefsImpl();
-    unknowns = new UnknownsImpl();
-    
-    // このパッケージ下のクラスの依存を取得する
-    duClassStream().forEach(clsNode-> {
-      ClsDeps clsDeps = clsNode.buildDeps();
-      depsTo.add(clsDeps.depends);
-      unknowns.add(clsDeps.unknowns);
-    });
-
-    // 依存先のrefsFromを設定
-    depsTo.stream().forEach(to->((PkgNodeImpl)to).depsFrom.add(this));    
-    
-    // 下位のパッケージノードを処理
-    this.duPackageStream().forEach(child->child.buildRefs());
-  }
-
   /** 
    * このパッケージの不明import集合を取得する。
    * descend=trueのときはこのパッケージ以下のすべての不明import集合
@@ -368,7 +336,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
    * 名前順になっている。
    * @return
    */
-  private Stream<ClsNodeImpl>duClassStream() {
+  Stream<ClsNodeImpl>duClassStream() {
     return nodeMap.values().stream()
         .filter(n->n instanceof ClsNodeImpl).map(n->(ClsNodeImpl)n).sorted();
   }
@@ -378,7 +346,7 @@ public class PkgNodeImpl extends JavaNodeImpl implements PkgNode {
    * 名前順になっている。
    * @return
    */
-  private Stream<PkgNodeImpl>duPackageStream() {
+  Stream<PkgNodeImpl>duPackageStream() {
       return nodeMap.values().stream()
         .filter(node->node instanceof PkgNodeImpl).map(n->(PkgNodeImpl)n).sorted();
   }
