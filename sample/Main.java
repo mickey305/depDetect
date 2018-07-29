@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.*;
 
 import com.cm55.depDetect.*;
 import com.cm55.depDetect.impl.*;
@@ -6,10 +7,15 @@ import com.cm55.depDetect.impl.*;
 public class Main {
   public static void main(String[] args) throws IOException {
     
-    PkgNode root = SrcTreeCreator.create(      
-      "C:\\devel\\workspace-neon\\github_depDetect\\src"
+    PkgNode root = BinTreeCreator.create(
+      null,
+      Arrays.stream(new String[] {
+        //"C:\\devel\\workspace-neon\\github_depDetect\\bin\\default"
+          "C:\\devel\\workspace-neon\\github_depDetect\\bin\\default\\com\\cm55\\depDetect\\ClsNode.class"
+      })
     );
 
+    /*
     // 不明importを表示
     System.out.println("不明import");
     root.getUnknowns(true).stream().forEach(System.out::println);
@@ -33,5 +39,6 @@ public class Main {
         });
       });
     });    
+    */
   }
 }

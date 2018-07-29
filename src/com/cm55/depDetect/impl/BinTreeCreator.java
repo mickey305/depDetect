@@ -3,41 +3,53 @@ package com.cm55.depDetect.impl;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.*;
 
 import com.cm55.depDetect.*;
 
 /**
- * Javaソース・ファイルからの木構造クリエータ
+ * .class、フォルダ、jarファイルからの木構造クリエータ
  * @author ysugimura
  */
-public class SrcTreeCreator {
-
-  public static PkgNode create(File...paths) throws IOException {
-    return create(Arrays.stream(paths).map(path->path.toPath()).collect(Collectors.toList()));
-  }
+public class BinTreeCreator {
   
-  public static PkgNode create(String...paths) throws IOException {
-    return create(Arrays.stream(paths).collect(Collectors.toList()));
-  }
-  
-  public static PkgNode create(Collection<String>paths) throws IOException {
-    return create(paths.stream().map(path->Paths.get(path)).collect(Collectors.toList()));
-  }
-  
-  public static PkgNode create(Path...tops) throws IOException {
-    return create(Arrays.stream(tops).collect(Collectors.toList()));
-  }
-  
-  public static PkgNode create(List<Path>tops) throws IOException {
+  public static PkgNode create(String jdeps, Stream<String>files) throws IOException {
     PkgNodeImpl root = PkgNodeImpl.createRoot();
     
+    List<String>cmd = new ArrayList<>();
+    if (jdeps == null) cmd.add("jdeps");
+    cmd.add("-J-Duser.language=en");
+    cmd.addAll(files.collect(Collectors.toList()));
+
+      
+    ProcessBuilder builder = new ProcessBuilder(cmd);
+    Process process = builder.start();
+    InputStream in = process.getInputStream();
+    BufferedReader r = new BufferedReader(new InputStreamReader(in));    
+    ExecutorService service = Executors.newSingleThreadExecutor();
+    service.submit(()-> {
+      while (true) {
+        String line = r.readLine();
+        if (line == null) break;
+        System.out.println(line);
+      }
+      return null;
+    });
+    service.shutdown();
+    try {
+      process.waitFor();
+    } catch (InterruptedException ex) {}
+    int ret = process.exitValue();
+    
+    /*
     // ツリーを作成する
     for (Path top: tops) create(root, top);
 
     // 依存をビルドする。
     // まずすべてのクラスの依存パッケージ集合を得てから、それぞれのパッケージの依存パッケージ集合を得る
     root.buildRefs();
+    */
     
     return root;
   }
