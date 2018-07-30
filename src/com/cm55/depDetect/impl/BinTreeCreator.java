@@ -16,14 +16,18 @@ public class BinTreeCreator {
   
 
   public static PkgNode create(String jdeps, Stream<String>files) throws IOException {
+    
     PkgNodeImpl root = PkgNodeImpl.createRoot();
     
     List<String>cmd = new ArrayList<>();
     if (jdeps == null) cmd.add("jdeps");
+    else cmd.add(jdeps);
     cmd.add("-J-Duser.language=en");
     cmd.add("-v");
     cmd.addAll(files.collect(Collectors.toList()));
 
+    //ystem.out.println(cmd.stream().collect(Collectors.joining(" ")));
+    
     Process process = new ProcessBuilder(cmd).start();
     BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));    
     ExecutorService service = Executors.newSingleThreadExecutor();

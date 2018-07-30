@@ -25,7 +25,7 @@ public class BinTreeDetail {
     
     try {
       List<String>paths = includesAllInternals(clsFile, clsNode.getName());
-      paths.stream().forEach(System.out::println);      
+      //paths.stream().forEach(System.out::println);      
       String result = getJDeps(jdeps, paths);      
       return result;
     } catch (IOException ex) {}    
@@ -87,9 +87,11 @@ public class BinTreeDetail {
     
     List<String>cmd = new ArrayList<>();
     if (jdeps == null) cmd.add("jdeps");
+    else cmd.add(jdeps);
     cmd.add("-J-Duser.language=en");
     cmd.add("-v");
     cmd.addAll(paths);
+    
 
     StringBuilder result = new StringBuilder();
     
