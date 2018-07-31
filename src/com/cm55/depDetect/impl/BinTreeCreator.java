@@ -35,6 +35,7 @@ public class BinTreeCreator {
       while (true) {
         String line = r.readLine();
         if (line == null) break;
+        //ystem.out.println(line);
         processLine(root, line);
       }
       return null;

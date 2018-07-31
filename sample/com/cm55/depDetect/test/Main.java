@@ -1,3 +1,4 @@
+package com.cm55.depDetect.test;
 import java.io.*;
 import java.util.*;
 
@@ -11,14 +12,9 @@ public class Main {
       null,
       Arrays.stream(new String[] {
         "C:\\devel\\workspace-neon\\github_depDetect\\bin\\default",
-        //  "C:\\Users\\admin\\Desktop\\shouhinstaff\\server.jar"
-        //  "C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\bin"
-          "C:\\Users\\admin\\git\\shouhinstaff\\shouhinstaff\\release\\private\\terminal.jar"
-        //  "C:\\devel\\workspace-neon\\github_depDetect\\bin\\default\\com\\cm55\\depDetect\\ClsNode.class"
       })
     );
-
-    /*
+    
     // 不明importを表示
     System.out.println("不明import");
     root.getUnknowns(true).stream().forEach(System.out::println);
@@ -42,6 +38,6 @@ public class Main {
         });
       });
     });    
-    */
+    
   }
 }
